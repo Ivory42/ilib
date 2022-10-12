@@ -11,349 +11,148 @@
 #endif
 #define _ilib_included
 
-
-
 /*
-* Struct used to store information about a client
-* Can be used to perform most actions normally used on client indexes
-*/
-enum struct FClient
-{
-	FObject reference; // Reference used for this client
-
-    /*
-    * Sets the reference of this client as the given client index
-    *
-    * @param1 client - Client index to set as this reference
-    */
-	void Set(int client)
-	{
-		if (client > 0 && client <= MaxClients && IsClientInGame(client))
-			reference.Set(client);
-	}
-
-    // Gets this client's referenced index
-	int Get()
-	{
-		return this.reference.Get();
-	}
-
-	bool Valid()
-	{
-		int client = this.reference.Get();
-		if (client > 0 && client <= MaxClients)
-			return IsClientInGame(client);
-
-		return false;
-	}
-
-    // Returns whether or not this client is alive
-	bool Alive()
-	{
-		if (this.Valid())
-			return IsPlayerAlive(this.Get());
-
-		return false;
-	}
-
-	/*
-    * Teleports the reference client
-    *
-    * @param1 pos - Location to teleport to
-    * @param2 rot - Rotation to set
-    * @param3 vel - Velocity to set
-    */
-	void Teleport(FVector pos, FRotator rot, FVector vel)
-	{
-		if (this.Valid())
-		{
-			float position[3], angles[3], velocity[3];
-			if (Vector_IsNull(pos))
-				position = NULL_VECTOR;
-			else
-				position = Vector_MakeFloat(pos);
-
-			if (Rotator_IsNull(rot))
-				angles = NULL_VECTOR;
-			else
-				angles = Rotator_MakeFloat(rot);
-
-			if (Vector_IsNull(vel))
-				velocity = NULL_VECTOR;
-			else
-				velocity = Vector_MakeFloat(vel);
-
-			TeleportEntity(this.Get(), position, angles, velocity);
-		}
-	}
-
-	// Retrieves this client's team as an integer
-	int GetTeam()
-	{
-		if (this.Valid())
-			return GetClientTeam(this.Get());
-
-		return -1;
-	}
-
-	// Retrieves this client's current health value as an integer
-	int GetHealth()
-	{
-		if (this.Alive())
-			return GetClientHealth(this.Get())
-
-		return 0;
-	}
-
-	// Retrieves this client's maximum health value as an integer
-	int GetMaxHealth()
-	{
-		if (this.Alive())
-			return GetEntProp(this.Get(), Prop_Data, "m_iMaxHealth");
-
-		return 0;
-	}
-
-	/*
-    * Adds health to this client
-	* @param1 amount - amount of health to add
-	* @param2 overheal - As a multiplier, how much this healing can overheal the player by
-    */
-	void AddHealth(int amount, float overheal = 1.0)
-	{
-		if (this.Valid())
-		{
-			int health = GetClientHealth(this.Get());
-
-			int max = GetEntProp(this.Get(), Prop_Data, "m_iMaxHealth");
-			if (health > max * overheal)
-				return;
-
-			health += amount;
-			if (health > max * overheal)
-				health = RoundFloat(max * overheal);
-
-			SetEntityHealth(this.Get(), health);
-		}
-	}
-
-	// Retrieves this client's class as a TFClassType
-	TFClassType GetClass()
-	{
-		if (this.Valid())
-			return TF2_GetPlayerClass(this.Get());
-
-		return TFClass_Unknown;
-	}
-
-	/*
-    * Sets a condition on this client
-    *
-    * @param1 cond - TFCond condition value to set
-    * @param2 duration - Duration for the condition
-    * @param3 inflictor - Who inflicted this condition
-    */
-	void AddCondition(TFCond cond, float duration, int inflictor = 0)
-	{
-		if (this.Valid())
-			TF2_AddCondition(this.Get(), cond, duration, inflictor);
-	}
-
-	/*
-    * Removes the condition given from this client
-    *
-    * @param1 cond - TFCond condition to remove
-    */
-	void RemoveCondition(TFCond cond)
-	{
-		if (this.Valid())
-			TF2_RemoveCondition(this.Get(), cond);
-	}
-
-    /*
-    * Checks whether this client is in the given condition
-    *
-    * @param1 cond - Condition to check for
-    *
-    * @return - True if the client is in the condition
-    */
-	bool InCondition(TFCond cond)
-	{
-		if (this.Valid())
-			return TF2_IsPlayerInCondition(this.Get(), cond);
-
-		return false;
-	}
-
-	// Wrapper for EmitSoundToClient()
-	void EmitSound(const char[] sound, int entity = 0, int channel = SNDCHAN_AUTO, int level = 200, int flags = 0, float vol = 1.0, int pitch = 100)
-	{
-		if (this.Valid())
-			EmitSoundToClient(this.Get(), sound, entity, channel, level, flags, vol, pitch);
-	}
-
-    /*
-    * Prints a center message to this client
-    *
-    * @param1 message - Text to display to this client
-    */
-	void PrintCenterText(const char[] message)
-	{
-		if (this.Valid())
-			PrintCenterText(this.Get(), message);
-	}
-
-    // Gets the max speed of this client
-	float GetMaxSpeed()
-	{
-		if (this.Valid())
-			return GetEntPropFloat(this.Get(), Prop_Data, "m_flMaxspeed");
-
-		else return 0.0;
-	}
-
-	/*
-    * Gets the absolute origin of this client
-    *
-    * @param1 pos - FVector to use as a buffer for this value
-    */
-	void GetPosition(FVector pos)
-	{
-		if (this.Valid())
-			Vector_GetClientPosition(this.Get(), pos);
-		else
-			LogError("Invalid Client! Client.GetPosition failed!");
-	}
-
-	/*
-    * Gets the eye position of this client
-    *
-    * @param1 pos - FVector to use as a buffer for this value
-    */
-	void GetEyePosition(FVector pos)
-	{
-		if (this.Valid())
-			Vector_GetClientEyePosition(this.Get(), pos);
-		else
-			LogError("Invalid Client! Client.GetEyePosition failed!");
-	}
-
-	/*
-    * Gets the eye angles of this client
-    *
-    * @param1 rot - FRotator to use as a buffer for this value
-    */
-	void GetEyeAngles(FRotator rot)
-	{
-		if (this.Valid())
-			Rotator_GetClientEyeAngles(this.Get(), rot);
-		else
-			LogError("Invalid Client! Client.GetEyeAngles failed!");
-	}
-
-	/*
-    * Gets the absolute angles of this client
-    *
-    * @param1 rot - FRotator to use as a buffer for this value
-    */
-	void GetAngles(FRotator rot)
-	{
-		if (this.Valid())
-			Rotator_GetClientAbsAngles(this.Get(), rot);
-		else
-			LogError("Invalid Client! Client.GetAngles failed!");
-	}
-
-	/*
-    * Gets the velocity of this client
-    *
-    * @param1 pos - FVector to use as a buffer for this value
-    */
-	void GetVelocity(FVector vel)
-	{
-		if (this.Valid())
-			Vector_GetProperty(this.Get(), Prop_Data, "m_vecVelocity", vel);
-	}
-
-	/*
-    * Ignites this client with a duration and attacker
-    *
-    * @param1 attacker - Entity index of the attacker
-    * @param2 duration - Duration of burn
-    */
-	void Ignite(int attacker, float duration)
-	{
-		if (this.Valid())
-			TF2_IgnitePlayer(this.Get(), attacker, duration);
-	}
-
-	/*
-    * Executes a client command on this client
-    *
-    * @param1 command - Command to execute
-    */
-	void ExecuteCommand(const char[] command)
-	{
-		if (this.Valid())
-			ClientCommand(this.Get(), command);
-	}
-
-    /*
-    * Returns the entity index of the weapon using the given slot
-    *
-    * @param1 slot - Slot to check for
-    *
-    * @return - Entity index of the weapon equipped in this slot
-    */
-	int GetSlot(int slot)
-	{
-		if (this.Valid())
-			return GetPlayerWeaponSlot(this.Get(), slot);
-
-		return -1;
-	}
-}
-
-/*
-* Constructs an FObject with the given entity index as its reference
+* Interpolates between two values making a smooth transition
 *
-* @param1 index - Entity index to use as a reference
+* @param1 current - Starting value
+* @param2 target - Target value
+* @param3 time - Time interval for interpolation speed
+*
+* @return - Interpolated value between the current and target
 */
-stock any[sizeof FObject] ConstructObject(int index)
+stock float InterpolateFloat(float current, float target, float time)
 {
-    FObject entity;
-    entity.Set(index);
-
-    return entity;
+	return (1.0 - time) * current + time * target;
 }
 
 /*
-* Constructs an FClient with the given client as its reference
+* Gets an angle in degrees between two rotators
+* 
+* @param1 origin - Origin angle
+* @param2 target - Target angle
 *
-* @param1 index - Client index to use as a reference
-* @param2 userid - Is the given index a userid
+* @return - Float value of angle in degrees 
 */
-stock any[sizeof FObject] ConstructClient(int index, bool userid = false)
+stock float GetAngle(FRotator origin, FRotator target)
 {
-    FClient client;
-    
-    if (userid)
-    {
-        int clientId = GetClientOfUserId(index);
-        client.Set(clientId);
-    }
-    else
-        client.Set(index);
+	FVector aim, ang;
 
-    return client;
+	viewAngle.GetForwardVector(aim);
+	aimAngle.GetForwardVector(ang);
+
+	return RadToDeg(ArcCosine(Vector_DotProduct(aim, ang) / aim.Length(true)));
 }
 
-
-// Returns a reference to the world, or client 0
-stock any[sizeof FClient] GetWorld()
+/*
+* Gets the rotation between two locations in world space
+*
+* @param1 origin - Origin position
+* @param2 destination - Destination position
+*
+* @return - FRotator containing the world angles from the origin to the destination
+*/
+stock any[sizeof FRotator] CalcAngle(FVector origin, FVector destination)
 {
-    FClient world;
-    world.reference.ref = 0;
+	FRotator angles;
+	FVector buffer;
+	Vector_Subtract(destination, origin, buffer);
 
-    return world;
+	Vector_GetAngles(buffer, angles);
+
+	return angles;
+}
+
+// Emits the given sound to all players
+stock void EmitSoundToPlayers(const char[] sample)
+{
+	for (int i = 1; i <= MaxClients; i++)
+	{
+		FClient client;
+		client.Set(i);
+		if (client.Valid())
+			EmitSoundToClient(client.Get(), sample);
+	}
+}
+
+/*
+* Creates a tf_hud_text object and prepares a timer to display it for the given duration
+*
+* @param1 client - Client reference to display this message to
+* @param2 message - Message to display
+* @param3 duration - Duration to hold the message for
+* @param4 icon - Icon to use for the message
+*/
+stock void DisplayTFMessage(FClient client, const char[] message, float duration, const char[] icon = "leaderboard_streak")
+{
+	if (client.Valid())
+	{
+		float endTime = GetGameTime() + duration;
+
+		DataPack data = CreateDataPack();
+		data.WriteCell(client.Get());
+		data.WriteString(message);
+		data.WriteFloat(endTime);
+		data.WriteString(icon);
+
+		data.Reset();
+
+		CreateTimer(0.1, DisplayTFMessageTimer, data, TIMER_REPEAT|TIMER_FLAG_NO_MAPCHANGE);
+	}
+}
+
+// Timer function used with DiplayTFMessage
+Action DisplayTFMessageTimer(Handle timer, DataPack datapack)
+{
+    data.Reset();
+
+	FClient client;
+	client.Set(data.ReadCell());
+
+	if (client.Valid())
+	{
+		char message[256], icon[128];
+		bool end;
+
+		data.ReadString(message, sizeof message);
+
+		float time = data.ReadFloat();
+		end = time <= GetGameTime();
+
+		//PrintToChat(client.Get(), "Timer on text: %.1f", time - GetGameTime());
+
+		if (end)
+		{
+			delete data;
+			return Plugin_Stop;
+		}
+
+		data.ReadString(icon, sizeof icon);
+
+		WriteGameText(client, message, icon);
+
+		return Plugin_Continue;
+	}
+
+	delete data;
+	return Plugin_Stop;
+}
+
+/*
+* Displays a tf_hud_text to the given client
+* If the message needs to persist for a specific time, use DisplayTFMessage instead
+* The Handle created from this message is garbage collected and does not need to be closed
+*
+* @param1 client - Client reference to display this text to
+* @param2 message - Message to display
+* @param3 icon - Icon used with this message
+*/
+stock void WriteGameText(FClient client, const char[] message, const char[] icon = "leaderboard_streak")
+{
+	Handle GlobalText = StartMessageOne("HudNotifyCustom", client.Get()); // This handle is garbage collected, we don't need to worry about it
+
+	SetGlobalTransTarget(client.Get());
+	BfWriteString(GlobalText, message);
+	BfWriteString(GlobalText, icon);
+	BfWriteByte(GlobalText, client.GetTeam());
+	EndMessage();
 }

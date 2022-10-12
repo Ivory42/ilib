@@ -537,3 +537,16 @@ enum struct FObject
 		return result;
 	}
 }
+
+/*
+* Constructs an FObject with the given entity index as its reference
+*
+* @param1 index - Entity index to use as a reference
+*/
+stock any[sizeof FObject] ConstructObject(int index)
+{
+    FObject entity;
+    entity.Set(index);
+
+    return entity;
+}
