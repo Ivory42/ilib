@@ -51,7 +51,7 @@ enum struct FVector
 	}
 
 	// Returns the distance between this vector and another given vector
-	float DistanceTo(FVector vec[3], bool squared = false)
+	float DistanceTo(FVector vec, bool squared = false)
 	{
 		return GetVectorDistance(vec.ToFloat(), this.ToFloat(), squared);
 	}
@@ -85,7 +85,8 @@ enum struct FVector
 	}
 }
 
-public FVector NULL_FVector; //Used for null vector inputs
+// Used for null vector inputs
+public FVector NULL_FVector;
 
 /*
 * Wrappers for float arrays intended to be used for angles
@@ -120,47 +121,60 @@ enum struct FRotator
 	}
 
 	// Retrieves the forward vector of this rotator as an FVector
-	void GetForwardVector(FVector vector)
+	FVector GetForwardVector()
 	{
+		FVector vector;
+
 		float rot[3], vec[3];
 		rot = this.ToFloat();
 
 		GetAngleVectors(rot, vec, NULL_VECTOR, NULL_VECTOR);
 
 		vector.Set(vec);
+
+		return vector;
 	}
 
 	// Retrieves the right vector of this rotator as a FVector
-	void GetRightVector(FVector vector)
+	FVector GetRightVector()
 	{
+		FVector vector;
+
 		float rot[3], vec[3];
 		rot = this.ToFloat();
 
 		GetAngleVectors(rot, NULL_VECTOR, vec, NULL_VECTOR);
 		
 		vector.Set(vec);
+
+		return vector;
 	}
 
 	// Retrieves the up vector of this rotator as a FVector
-	void GetUpVector(FVector vector)
+	FVector GetUpVector()
 	{
+		FVector vector;
+
 		float rot[3], vec[3];
 		rot = this.ToFloat();
 
 		GetAngleVectors(rot, NULL_VECTOR, NULL_VECTOR, vec);
 		
 		vector.Set(vec);
+
+		return vector;
 	}
 }
 
-public FRotator NULL_ROTATOR; //Used for null rotator inputs
+// Used for null rotator inputs
+public FRotator NULL_ROTATOR;
 
 /*
-* Constructor for FVector types
-* Can be left blank to create a zero vector
+* Constructor for FVector types.
+* Can be left blank to create a zero vector.
 * Filling in only the first axis will auto fill the rest
 */
-stock any[sizeof FVector] ConstructVector(float x = 0.0, float y = 0.0, float z = 0.0)
+stock FVector ConstructVector(float x = 0.0, float y = 0.0, float z = 0.0)
 {
 	FVector vector;
 	vector.x = x;
@@ -235,7 +249,7 @@ stock float[] Vector_MakeFloat(FVector vector)
 	if (Vector_IsNull(vector))
 		return NULL_VECTOR;
 
-	return vec.ToFloat();
+	return vector.ToFloat();
 }
 
 
@@ -301,7 +315,7 @@ stock void Vector_GetClientEyePosition(int client, FVector vector)
 * Can be left blank to create a zero vector
 * Unlike FVector, values here will not be auto filled
 */
-stock any[sizeof FRotator] ConstructRotator(float pitch = 0.0, float yaw = 0.0, float roll = 0.0)
+stock FRotator ConstructRotator(float pitch = 0.0, float yaw = 0.0, float roll = 0.0)
 {
 	FRotator rot;
 	rot.pitch = pitch;
@@ -383,10 +397,10 @@ stock void NormalizeAngles(FRotator angle)
 /*
 * Interpolates between two vectors to give a smooth transition
 * 
-* @param1 origin - Starting vector
-* @param2 destination - Destination vector
-* @param3 time - Time interval for transition, such as GetGameTime()
-* @param4 buffer - Buffer to store the transition
+* @param origin			Starting vector
+* @param destination	Destination vector
+* @param time			Time interval for transition, such as GetGameTime()
+* @param buffer			Buffer to store the transition
 */
 stock void InterpVector(FVector origin, FVector destination, float time, FVector buffer)
 {
@@ -409,7 +423,7 @@ stock float FloatMod(float num, float denom)
 	return num - denom * RoundToFloor(num / denom);
 }
 
-// Allows the use of modulo
+// I guess sourcepawn still doesn't support modulo?
 stock float operator%(float oper1, float oper2)
 {
 	return FloatMod(oper1, oper2);

@@ -1,0 +1,10 @@
+# Compiled source #
+###################
+*.smx
+*.exe
+*.dat
+*.sh
+*.ff2
+*spcomp
+*spcomp64
+*local/

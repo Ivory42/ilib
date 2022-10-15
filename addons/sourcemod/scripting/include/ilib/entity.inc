@@ -22,7 +22,7 @@ enum struct FObject
 			this.ref = EntIndexToEntRef(ent);
 	}
 
-	// Converts the reference this object points to into its entity index. Use FEntity::Valid() to ensure it's a valid entity before doing this
+	// Converts the reference this object points to into its entity index.
 	int Get()
 	{
 		return EntRefToEntIndex(this.ref);
@@ -36,9 +36,10 @@ enum struct FObject
 	}
 
 	/*
-	* Returns true if the entity is of the given class name
+	* Returns true if the entity is of the given classname
+	* This isn't a true cast, as all entities are of the same type
 	*
-	* @param1 class - classname to check for
+	* @param class classname to check for
 	*/
 	bool Cast(const char[] class)
 	{
@@ -56,7 +57,7 @@ enum struct FObject
 	/*
 	* Sets the render color of the entity this object points to
 	*
-	* @param1 color - color struct to apply to this entity
+	* @param color color struct to apply to this entity
 	*/
 	void SetColor(FLinearColor color)
 	{
@@ -67,7 +68,7 @@ enum struct FObject
 	/*
 	* Wrapper for CreateEntityByName()
 	*
-	* @param1 classname - Entity type to create
+	* @param classname Entity type to create
 	*
 	* If successful, will automatically set the created entity as this object's reference
 	*/
@@ -81,8 +82,8 @@ enum struct FObject
 	/*
 	* Wrapper for GetEntityClassname()
 	*
-	* @param1 classname - buffer to store the name into
-	* @param2 size - size of the buffer
+	* @param classname buffer to store the name into
+	* @param size size of the buffer
 	*/
 	void GetClassname(char[] classname, int size)
 	{
@@ -99,7 +100,7 @@ enum struct FObject
 			AcceptEntityInput(this.Get(), input, activator, caller, id);
 	}
 
-	// Wrapper for HookSingleEntityOutput(). 
+	// Wrapper for HookSingleEntityOutput()
 	void HookOutput(const char[] output, EntityOutput callback, bool once = false)
 	{
 		if (this.Valid())
@@ -116,8 +117,8 @@ enum struct FObject
 	/*
 	* Wrapper for DispatchKeyValue()
 	*
-	* @param1 key - Name of the key to set the value of
-	* @param2 value - Value to set on the key, as a string
+	* @param key Name of the key to set the value of
+	* @param value Value to set on the key, as a string
 	*/
 	void SetKeyValue(const char[] key, const char[] value)
 	{
@@ -128,7 +129,7 @@ enum struct FObject
 	/*
 	* Wrapper for SetEntityModel()
 	*
-	* @param1 model - path of the model to set on this entity
+	* @param model path of the model to set on this entity
 	*/
 	void SetModel(const char[] model)
 	{
@@ -170,11 +171,11 @@ enum struct FObject
 	}
 
 	/*
-	* Teleports the entity referenced by this object
+	* Teleports this object's referenced entity
 	*
-	* @param1 pos - Location to teleport to
-	* @param2 rot - Rotation to set
-	* @param2 vel - Velocity to set
+	* @param pos Location to teleport to
+	* @param rot Rotation to set
+	* @param vel Velocity to set
 	*/
 	void Teleport(FVector pos, FRotator rot, FVector vel)
 	{
@@ -202,10 +203,9 @@ enum struct FObject
 
 	/*
 	* Sets the rotation and velocity of the entity referenced by this object
-	* More lightweight than FObject::Teleport()
 	*
-	* @param1 rot - Rotation to set
-	* @param2 vel - Velocity to set
+	* @param rot 	Rotation to set
+	* @param vel 	Velocity to set
 	*/
 	void SetVelocityRotation(FRotator rot, FVector vel)
 	{
@@ -218,10 +218,10 @@ enum struct FObject
 	/*
 	* Wrapper for SetEntPropVector()
 	*
-	* @param1 type - PropType of the given property
-	* @param2 property - Name of the property to set
-	* @param3 vector - FVector value to set on this property
-	* @param4 element - Element in the array to set, if applicable
+	* @param type 		PropType of the given property
+	* @param property 	Name of the property to set
+	* @param vector 	FVector value to set on this property
+	* @param element 	Element in the array to set, if applicable
 	*/
 	void SetPropVector(PropType type, const char[] property, FVector vector, int element = 0)
 	{
@@ -232,10 +232,10 @@ enum struct FObject
 	/*
 	* Wrapper for SetEntPropVector() used for setting rotations
 	*
-	* @param1 type - PropType of the given property
-	* @param2 property - Name of the property to set
-	* @param3 rotator - FRotator value to set on this property
-	* @param4 element - Element in the array to set, if applicable
+	* @param type 		PropType of the given property
+	* @param property 	Name of the property to set
+	* @param rotator 	FRotator value to set on this property
+	* @param element 	Element in the array to set, if applicable
 	*/
 	void SetPropRotator(PropType type, const char[] property, FRotator rotator, int element = 0)
 	{
@@ -246,10 +246,10 @@ enum struct FObject
 	/*
 	* Wrapper for SetEntProp()
 	*
-	* @param1 type - PropType of the given property
-	* @param2 property - Name of the property to set
-	* @param3 value - Value to set on this property
-	* @param4 element - Element in the array to set, if applicable
+	* @param type		PropType of the given property
+	* @param property	Name of the property to set
+	* @param value		Value to set on this property
+	* @param element	Element in the array to set, if applicable
 	*/
 	void SetProp(PropType type, const char[] property, any value, int element = 0)
 	{
@@ -260,24 +260,27 @@ enum struct FObject
 	/*
 	* Wrapper for SetEntPropEnt()
 	*
-	* @param1 type - PropType of the given property
-	* @param2 property - Name of the property to set
-	* @param3 reference - FObject to set for this property
-	* @param4 element - Element in the array to set, if applicable
+	* @param type 		PropType of the given property
+	* @param property 	Name of the property to set
+	* @param reference 	FObject to set for this property
+	* @param element 	Element in the array to set, if applicable
 	*/
 	void SetPropEnt(PropType type, const char[] property, FObject reference, int element = 0)
 	{
+		if (!reference.Valid())
+			LogError("FObject::SetPropEnt recieved an invalid object reference!");
+
 		if (this.Valid())
-			SetEntPropEnt(this.Get(), type, property, value, element);
+			SetEntPropEnt(this.Get(), type, property, reference.Get(), element);
 	}
 
 	/*
 	* Wrapper for SetEntPropFloat()
 	*
-	* @param1 type - PropType of the given property
-	* @param2 property - Name of the property to set
-	* @param3 value - float value to set on this property
-	* @param4 element - Element in the array to set, if applicable
+	* @param type 		PropType of the given property
+	* @param property	Name of the property to set
+	* @param value 		float value to set on this property
+	* @param element	Element in the array to set, if applicable
 	*/
 	void SetPropFloat(PropType type, const char[] property, float value, int element = 0)
 	{
@@ -288,9 +291,9 @@ enum struct FObject
 	/*
 	* Wrapper for GetEntProp()
 	*
-	* @param1 type - PropType of the given property
-	* @param2 property - Name of the property to get
-	* @param3 element - Element in the array to set, if applicable
+	* @param type		PropType of the given property
+	* @param property	Name of the property to get
+	* @param element	Element in the array to set, if applicable
 	*
 	* @return - Integer value of the property, 0 if not an integer value
 	*/
@@ -305,28 +308,28 @@ enum struct FObject
 	/*
 	* Wrapper for GetEntPropEnt()
 	*
-	* @param1 type - PropType of the given property
-	* @param2 property - Name of the property to get
-	* @param3 reference - FObject to use as a buffer for the entity pointer
-	* @param4 element - Element in the array to set, if applicable 
+	* @param type		PropType of the given property
+	* @param property	Name of the property to get
+	* @param element	Element in the array to set, if applicable 
 	*
 	*/
-	void GetPropEnt(PropType type, const char[] property, FObject reference, int element = 0)
+	FObject GetPropEnt(PropType type, const char[] property, int element = 0)
 	{
+		FObject reference;
 		if (this.Valid())
 			reference.Set(GetEntPropEnt(this.Get(), type, property, element));
 
-		return -1;
+		return reference;
 	}
 
 	/*
 	* Wrapper for GetEntPropFloat()
 	*
-	* @param1 type - PropType of the given property
-	* @param2 property - Name of the property to get
-	* @param3 element - Element in the array to set, if applicable
+	* @param type		PropType of the given property
+	* @param property	Name of the property to get
+	* @param element	Element in the array to set, if applicable
 	*
-	* @return - float value of the property, 0 if not an integer value
+	* @return - float value of the property
 	*/
 	float GetPropFloat(PropType type, const char[] property, int element = 0)
 	{
@@ -339,10 +342,10 @@ enum struct FObject
 	/*
 	* Wrapper for GetEntPropVector()
 	*
-	* @param1 type - PropType of the given property
-	* @param2 property - Name of the property to get
-	* @param3 vector - FVector to use as a buffer for the value
-	* @param4 element - Element in the array to set, if applicable 
+	* @param type		PropType of the given property
+	* @param property	Name of the property to get
+	* @param vector		FVector to use as a buffer for the value
+	* @param element	Element in the array to set, if applicable 
 	*
 	*/
 	void GetPropVector(PropType type, const char[] property, FVector vector, int element = 0)
@@ -354,10 +357,10 @@ enum struct FObject
 	/*
 	* Wrapper for GetEntPropVector(). Used for getting rotation values
 	*
-	* @param1 type - PropType of the given property
-	* @param2 property - Name of the property to get
-	* @param3 rotator - FRotator to use as a buffer for the value
-	* @param4 element - Element in the array to set, if applicable 
+	* @param type		PropType of the given property
+	* @param property	Name of the property to get
+	* @param rotator	FRotator to use as a buffer for the value
+	* @param element	Element in the array to set, if applicable 
 	*
 	*/
 	void GetPropRotator(PropType type, const char[] property, FRotator rotator, int element = 0)
@@ -369,11 +372,11 @@ enum struct FObject
 	/*
 	* Wrapper for GetEntPropString()
 	*
-	* @param1 type - PropType of the given property
-	* @param2 property - Name of the property to get
-	* @param3 buffer - Buffer to store the string in
-	* @param4 size - Size of the buffer
-	* @param5 element - Element in the array to set, if applicable 
+	* @param type		PropType of the given property
+	* @param property	Name of the property to get
+	* @param buffer		Buffer to store the string in
+	* @param size		Size of the buffer
+	* @param element	Element in the array to set, if applicable 
 	*
 	*/
 	void GetPropString(PropType type, const char[] property, char[] buffer, int size, int element = 0)
@@ -385,8 +388,8 @@ enum struct FObject
 	/*
 	* Wrapper for HasEntProp()
 	*
-	* @param1 type - PropType of the given property
-	* @param2 property - Name of the property to get
+	* @param type		PropType of the given property
+	* @param property	Name of the property to get
 	*
 	* @return - True if the property is found; false if the entity is invalid or the property does not exist
 	*/
@@ -401,60 +404,60 @@ enum struct FObject
 	/*
 	* Stores the position of this object in an FVector
 	*
-	* @param1 buffer - Buffer to store the vector in
+	* @return - FVector containing this object's position
 	*/
-	void GetPosition(FVector buffer)
+	FVector GetPosition()
 	{
+		FVector pos;
 		if (this.Valid())
-			this.GetPropVector(Prop_Data, "m_vecOrigin", buffer);
+			this.GetPropVector(Prop_Data, "m_vecOrigin", pos);
+
+		return pos;
 	}
 
 	/*
 	* Stores the angles of this object in an FRotator
 	*
-	* @param1 buffer - Buffer to store the vector in
+	* @return - FRotator containing this object's angles
 	*/
-	void GetAngles(FRotator buffer)
+	FRotator GetAngles()
 	{
+		FRotator rot;
 		if (this.Valid())
-			this.GetPropRotator(Prop_Send, "m_angRotation", buffer);
+			this.GetPropRotator(Prop_Send, "m_angRotation", rot);
+
+		return rot;
 	}
 
 	/*
 	* Gets the owner of this object
 	*
-	* @return - The entity index of the owner or itself if no owner is found
+	* @return - The object reference of the owner or itself if no owner is found
 	*/
-	int GetOwner()
+	FObject GetOwner()
 	{
+		FObject owner;
 		if (this.Valid())
 		{
-			int owner;
-
 			if (this.HasProp(Prop_Send, "m_hOwnerEntity"))
-			{
 				owner = this.GetPropEnt(Prop_Send, "m_hOwnerEntity");
-				if (IsValidEntity(owner) && owner > 0)
-					return owner;
-			}
 
-			if (this.HasProp(Prop_Send, "m_hThrower")) // Some projectiles use m_hThrower instead
-			{
+			// Some projectiles use m_hThrower instead of m_hOwnerEntity
+			if (!owner.Valid() && this.HasProp(Prop_Send, "m_hThrower"))
 				owner = this.GetPropEnt(Prop_Send, "m_hThrower");
-				if (IsValidEntity(owner) && owner > 0)
-					return owner;
-			}
-
-			PrintToChatAll("Entity can not accept an owner");
 
 			// If no owner found, return itself
-			return this.Get();
+			owner = this;
 		}
-		return -1;
+		return owner;
 	}
 
-	// Sets the owner of this object
-	void SetOwner(int owner)
+	/*
+	* Sets the owner of this object
+	*
+	* @param owner 	Object reference of the owner to set
+	*/
+	void SetOwner(FObject owner)
 	{
 		if (this.Valid())
 		{
@@ -469,58 +472,57 @@ enum struct FObject
 	/*
 	* Attaches this object to the given entity
 	*
-	* @param1 parent - Parent entity to attach to
+	* @param parent 	Parent object to attach to
 	*/
-	void Attach(int parent)
+	void Attach(FObject parent)
 	{
 		if (this.Valid())
 		{
-			int ent = this.Get();
+			if (!parent.Valid())
+				LogError("FObject::Attach recieved an invalid object reference for the parent attachment!");
 
 			SetVariantString("!activator");
-			AcceptEntityInput(ent, "SetParent", parent, ent);
+			AcceptEntityInput(this.Get(), "SetParent", parent.Get(), this.Get());
 		}
 	}
 
 	/*
 	* Creates and attaches a particle to this object
 	*
-	* @param1 name - Name of the particle to spawn
-	* @param2 offset - Optional offset to apply to the particle
+	* @param name 		Name of the particle to spawn
+	* @param offset 	Optional offset to apply to the particle
 	*
 	* @return - Entity index of the particle on success
 	*/
-	int AttachParticle(const char[] name, FVector offset)
+	FObject AttachParticle(const char[] name, FVector offset)
 	{
+		FObject particle;
 		if (this.Valid())
 		{
-			int particle = CreateEntityByName("info_particle_system");
+			particle.Create("info_particle_system");
 
 			FVector pos;
-			this.GetPropVector(Prop_Data, "m_vecOrigin", pos);
+			pos = this.GetPosition();
 
-			//if (!Vector_IsNull(offset))
-			pos.Add(Vector_MakeFloat(offset));
+			pos.Add(offset);
 
-			TeleportEntity(particle, Vector_MakeFloat(pos), NULL_VECTOR, NULL_VECTOR);
-			DispatchKeyValue(particle, "effect_name", name);
+			particle.Teleport(pos, ConstructRotator(), ConstructVector());
+			particle.SetKeyValue("effect_name", name);
 
-			DispatchSpawn(particle);
-			ActivateEntity(particle);
-			AcceptEntityInput(particle, "Start");
+			particle.Spawn();
+			particle.Activate();
+			particle.Input("Start");
 
 			SetVariantString("!activator");
-			AcceptEntityInput(particle, "SetParent", this.Get(), particle);
-
-			return particle;
+			particle.Attach(this);
 		}
-		return -1;
+		return particle;
 	}
 
 	/*
 	* Finds the first instance of the given entity classname and sets it as this object's reference
 	*
-	* @param1 classname - Entity classname to search for
+	* @param classname		Entity classname to search for
 	*
 	* @return - True if the entity was found, false if not
 	*/
@@ -543,7 +545,7 @@ enum struct FObject
 *
 * @param1 index - Entity index to use as a reference
 */
-stock any[sizeof FObject] ConstructObject(int index)
+stock FObject ConstructObject(int index)
 {
 	FObject entity;
 	entity.Set(index);

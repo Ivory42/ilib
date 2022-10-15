@@ -1,5 +1,6 @@
+#include <sdktools>
 #include "ilib/vector.inc"
-#include "ilib/traces.inc"
+#include "ilib/trace_wrapper.inc"
 #include "ilib/colors.inc"
 #include "ilib/timer.inc"
 #include "ilib/tempent.inc"
@@ -14,9 +15,9 @@
 /*
 * Interpolates between two values making a smooth transition
 *
-* @param1 current - Starting value
-* @param2 target - Target value
-* @param3 time - Time interval for interpolation speed
+* @param current Starting value
+* @param target Target value
+* @param time Time interval for interpolation speed
 *
 * @return - Interpolated value between the current and target
 */
@@ -28,8 +29,9 @@ stock float InterpolateFloat(float current, float target, float time)
 /*
 * Gets an angle in degrees between two rotators
 * 
-* @param1 origin - Origin angle
-* @param2 target - Target angle
+* @param origin Origin angle
+*
+* @param target Target angle
 *
 * @return - Float value of angle in degrees 
 */
@@ -37,8 +39,8 @@ stock float GetAngle(FRotator origin, FRotator target)
 {
 	FVector aim, ang;
 
-	viewAngle.GetForwardVector(aim);
-	aimAngle.GetForwardVector(ang);
+	aim = origin.GetForwardVector();
+	ang = target.GetForwardVector();
 
 	return RadToDeg(ArcCosine(Vector_DotProduct(aim, ang) / aim.Length(true)));
 }
@@ -46,12 +48,12 @@ stock float GetAngle(FRotator origin, FRotator target)
 /*
 * Gets the rotation between two locations in world space
 *
-* @param1 origin - Origin position
-* @param2 destination - Destination position
+* @param origin Origin position
+* @param destination Destination position
 *
-* @return - FRotator containing the world angles from the origin to the destination
+* @return FRotator containing the world angles from the origin to the destination
 */
-stock any[sizeof FRotator] CalcAngle(FVector origin, FVector destination)
+stock FRotator CalcAngle(FVector origin, FVector destination)
 {
 	FRotator angles;
 	FVector buffer;
@@ -77,10 +79,10 @@ stock void EmitSoundToPlayers(const char[] sample)
 /*
 * Creates a tf_hud_text object and prepares a timer to display it for the given duration
 *
-* @param1 client - Client reference to display this message to
-* @param2 message - Message to display
-* @param3 duration - Duration to hold the message for
-* @param4 icon - Icon to use for the message
+* @param client Client reference to display this message to
+* @param message Message to display
+* @param duration Duration to hold the message for
+* @param icon Icon to use for the message
 */
 stock void DisplayTFMessage(FClient client, const char[] message, float duration, const char[] icon = "leaderboard_streak")
 {
@@ -101,7 +103,7 @@ stock void DisplayTFMessage(FClient client, const char[] message, float duration
 }
 
 // Timer function used with DiplayTFMessage
-Action DisplayTFMessageTimer(Handle timer, DataPack datapack)
+Action DisplayTFMessageTimer(Handle timer, DataPack data)
 {
 	data.Reset();
 
@@ -139,12 +141,16 @@ Action DisplayTFMessageTimer(Handle timer, DataPack datapack)
 
 /*
 * Displays a tf_hud_text to the given client
+*
 * If the message needs to persist for a specific time, use DisplayTFMessage instead
 * The Handle created from this message is garbage collected and does not need to be closed
 *
-* @param1 client - Client reference to display this text to
-* @param2 message - Message to display
-* @param3 icon - Icon used with this message
+* @param client Client reference to display this text to
+*
+* @param message Message to display
+*
+* @param icon Icon used with this message
+*
 */
 stock void WriteGameText(FClient client, const char[] message, const char[] icon = "leaderboard_streak")
 {

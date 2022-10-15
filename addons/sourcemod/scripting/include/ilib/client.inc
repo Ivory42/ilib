@@ -14,17 +14,18 @@
 */
 enum struct FClient
 {
-	FObject reference; // Reference used for this client
+	// Reference used for this client
+	FObject reference;
 
 	/*
 	* Sets the reference of this client as the given client index
 	*
-	* @param1 client - Client index to set as this reference
+	* @param client Client index to set as this reference
 	*/
 	void Set(int client)
 	{
 		if (client > 0 && client <= MaxClients && IsClientInGame(client))
-			reference.Set(client);
+			this.reference.Set(client);
 	}
 
 	// Gets this client's referenced index
@@ -33,6 +34,13 @@ enum struct FClient
 		return this.reference.Get();
 	}
 
+	// Returns this client's FObject reference
+	FObject GetReference()
+	{
+		return this.reference;
+	}
+
+	// Returns true if this client is valid and in game
 	bool Valid()
 	{
 		int client = this.reference.Get();
@@ -52,11 +60,11 @@ enum struct FClient
 	}
 
 	/*
-	* Teleports the reference client
+	* Teleports the referenced client
 	*
-	* @param1 pos - Location to teleport to
-	* @param2 rot - Rotation to set
-	* @param3 vel - Velocity to set
+	* @param pos Location to teleport to
+	* @param rot Rotation to set
+	* @param vel Velocity to set
 	*/
 	void Teleport(FVector pos, FRotator rot, FVector vel)
 	{
@@ -111,8 +119,9 @@ enum struct FClient
 
 	/*
 	* Adds health to this client
-	* @param1 amount - amount of health to add
-	* @param2 overheal - As a multiplier, how much this healing can overheal the player by
+	*
+	* @param amount amount of health to add
+	* @param overheal As a multiplier, how much this healing can overheal the player by
 	*/
 	void AddHealth(int amount, float overheal = 1.0)
 	{
@@ -144,9 +153,9 @@ enum struct FClient
 	/*
 	* Sets a condition on this client
 	*
-	* @param1 cond - TFCond condition value to set
-	* @param2 duration - Duration for the condition
-	* @param3 inflictor - Who inflicted this condition
+	* @param cond TFCond condition value to set
+	* @param duration Duration for the condition
+	* @param inflictor Who inflicted this condition
 	*/
 	void AddCondition(TFCond cond, float duration, int inflictor = 0)
 	{
@@ -157,7 +166,7 @@ enum struct FClient
 	/*
 	* Removes the condition given from this client
 	*
-	* @param1 cond - TFCond condition to remove
+	* @param cond TFCond condition to remove
 	*/
 	void RemoveCondition(TFCond cond)
 	{
@@ -168,7 +177,7 @@ enum struct FClient
 	/*
 	* Checks whether this client is in the given condition
 	*
-	* @param1 cond - Condition to check for
+	* @param cond Condition to check for
 	*
 	* @return - True if the client is in the condition
 	*/
@@ -190,7 +199,7 @@ enum struct FClient
 	/*
 	* Prints a center message to this client
 	*
-	* @param1 message - Text to display to this client
+	* @param message Text to display to this client
 	*/
 	void PrintCenterText(const char[] message)
 	{
@@ -210,82 +219,89 @@ enum struct FClient
 	/*
 	* Gets the absolute origin of this client
 	*
-	* @param1 pos - FVector to use as a buffer for this value
+	* @return FVector containing this client's position
 	*/
-	void GetPosition(FVector pos)
+	FVector GetPosition()
 	{
+		FVector position;
 		if (this.Valid())
-			Vector_GetClientPosition(this.Get(), pos);
-		else
-			LogError("Invalid Client! Client.GetPosition failed!");
+			Vector_GetClientPosition(this.Get(), position);
+		
+		return position;
 	}
 
 	/*
 	* Gets the eye position of this client
 	*
-	* @param1 pos - FVector to use as a buffer for this value
+	* @return FVector containing this client's eye position
 	*/
-	void GetEyePosition(FVector pos)
+	FVector GetEyePosition()
 	{
+		FVector position;
 		if (this.Valid())
-			Vector_GetClientEyePosition(this.Get(), pos);
-		else
-			LogError("Invalid Client! Client.GetEyePosition failed!");
+			Vector_GetClientEyePosition(this.Get(), position);
+
+		return position;
 	}
 
 	/*
 	* Gets the eye angles of this client
 	*
-	* @param1 rot - FRotator to use as a buffer for this value
+	* @return FRotator containign this client's eye angles
 	*/
-	void GetEyeAngles(FRotator rot)
+	FRotator GetEyeAngles()
 	{
+		FRotator rot;
 		if (this.Valid())
 			Rotator_GetClientEyeAngles(this.Get(), rot);
-		else
-			LogError("Invalid Client! Client.GetEyeAngles failed!");
+
+		return rot;
 	}
 
 	/*
 	* Gets the absolute angles of this client
 	*
-	* @param1 rot - FRotator to use as a buffer for this value
+	* @return - FRotator containing this client's absolute angles
 	*/
-	void GetAngles(FRotator rot)
+	FRotator GetAngles()
 	{
+		FRotator rot;
 		if (this.Valid())
 			Rotator_GetClientAbsAngles(this.Get(), rot);
-		else
-			LogError("Invalid Client! Client.GetAngles failed!");
+
+		return rot;
 	}
 
 	/*
 	* Gets the velocity of this client
 	*
-	* @param1 pos - FVector to use as a buffer for this value
+	* @return - FVector containing this client's velocity
 	*/
-	void GetVelocity(FVector vel)
+	FVector GetVelocity()
 	{
+		FVector vel;
 		if (this.Valid())
 			Vector_GetProperty(this.Get(), Prop_Data, "m_vecVelocity", vel);
+
+		return vel;
 	}
 
 	/*
 	* Ignites this client with a duration and attacker
 	*
-	* @param1 attacker - Entity index of the attacker
-	* @param2 duration - Duration of burn
+	* @param attacker Object reference pointing to the attacker
+	* @param duration Duration of burn
 	*/
-	void Ignite(int attacker, float duration)
+	void Ignite(FObject attacker, float duration)
 	{
 		if (this.Valid())
-			TF2_IgnitePlayer(this.Get(), attacker, duration);
+			TF2_IgnitePlayer(this.Get(), attacker.Get(), duration);
 	}
 
 	/*
 	* Executes a client command on this client
 	*
-	* @param1 command - Command to execute
+	* @param command Command to execute
 	*/
 	void ExecuteCommand(const char[] command)
 	{
@@ -296,7 +312,7 @@ enum struct FClient
 	/*
 	* Returns the entity index of the weapon using the given slot
 	*
-	* @param1 slot - Slot to check for
+	* @param slot Slot to check for
 	*
 	* @return - Entity index of the weapon equipped in this slot
 	*/
@@ -312,10 +328,12 @@ enum struct FClient
 /*
 * Constructs an FClient with the given client as its reference
 *
-* @param1 index - Client index to use as a reference
-* @param2 userid - Is the given index a userid
+* @param index Client index to use as a reference
+* @param userid Is the given index a userid
+*
+* @return - FClient containing a reference to the given index
 */
-stock any[sizeof FObject] ConstructClient(int index, bool userid = false)
+stock FClient ConstructClient(int index, bool userid = false)
 {
 	FClient client;
 	
@@ -332,10 +350,16 @@ stock any[sizeof FObject] ConstructClient(int index, bool userid = false)
 
 
 // Returns a reference to the world, or client 0
-stock any[sizeof FClient] GetWorld()
+stock FClient GetWorld()
 {
 	FClient world;
 	world.reference.ref = 0;
 
 	return world;
+}
+
+// Returns true if this referenced client is the world (client index of 0)
+stock bool IsWorld(FClient client)
+{
+	return client.Get() == 0;
 }

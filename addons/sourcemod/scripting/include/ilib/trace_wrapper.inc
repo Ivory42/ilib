@@ -29,27 +29,35 @@ methodmap RayTrace < Handle
 	/*
 	* Stores the ending position of this trace
 	* 
-	* @param1 pos - Buffer to store the position
+	* @param pos 	Buffer to store the position
 	*/
-	public void GetEndPosition(FVector pos)
+	public FVector GetEndPosition()
 	{
+		FVector pos;
+
 		float end[3];
 		TR_GetEndPosition(end, this);
 
 		pos.Set(end);
+
+		return pos;
 	}
 
 	/*
 	* Stores the starting position of this trace
 	* 
-	* @param1 pos - Buffer to store the position
+	* @return FVector containing this trace's start position
 	*/
-	public void GetStartPosition(FVector pos)
+	public FVector GetStartPosition()
 	{
+		FVector pos;
+
 		float start[3];
 		TR_GetStartPosition(this, start);
 
 		pos.Set(start);
+
+		return pos;
 	}
 
 	/*
@@ -57,28 +65,35 @@ methodmap RayTrace < Handle
 	* 
 	* @param1 normal - Buffer to store the vector
 	*/
-	public void GetNormalVector(FVector normal)
+	public FVector GetNormalVector()
 	{
+		FVector normal;
+
 		float pos[3];
 		TR_GetPlaneNormal(this, pos);
 
 		normal.Set(pos);
+
+		return normal;
 	}
 
 	/*
 	* Gets the entity index of the hit entity
 	* 
-	* @return - Entity index of the entity that was hit
+	* @return - Object reference of the hit entity
 	*/
-	public int GetHitEntity()
+	public FObject GetHitEntity()
 	{
-		return TR_GetEntityIndex(this);
+		FObject entity;
+		entity = ConstructObject(TR_GetEntityIndex(this));
+
+		return entity;
 	}
 
 	/*
 	* Displays the trace and shows whether a hit was made or not
 	* 
-	* @param1 duration - Duration to display the trace
+	* @param duration	Duration to display the trace
 	*/
 	public void DebugTrace(float duration = 5.0)
 	{
@@ -90,8 +105,8 @@ methodmap RayTrace < Handle
 		else
 			color = {255, 0, 0, 255};
 
-		this.GetStartPosition(start);
-		this.GetEndPosition(end);
+		start = this.GetStartPosition();
+		end = this.GetEndPosition();
 
 		TE_SetupBeamPoints(Vector_MakeFloat(start), Vector_MakeFloat(end), PrecacheModel("materials/sprites/laser.vmt"), PrecacheModel("materials/sprites/laser.vmt"), 1, 10, duration, 10.0, 10.0, 1, 0.0, color, 1);
 		TE_SendToAll();

@@ -9,16 +9,20 @@
 */
 enum struct FTimer
 {
-	float nextTime; // Game time when this timer will expire next
-	float time; // Timer value to use for this timer
+	// Game time when this timer will expire next
+	float nextTime;
 
-	bool looping; // Whether or not this timer is looping
+	// Timer value to use for this timer
+	float time;
+
+	// Whether or not this timer is looping
+	bool looping;
 
 	/*
 	* Sets the timer value and activates this timer
 	*
-	* @param1 time - Duration for this timer
-	* @param2 loop - Should this timer loop
+	* @param time	Duration for this timer
+	* @param loop 	Should this timer loop
 	*/
 	void Set(float time, bool loop = false)
 	{
@@ -74,13 +78,13 @@ enum struct FTimer
 /*
 * Creates a timer and returns its information as an FTimer
 *
-* @param1 duration - Duration for this timer
-* @param2 loop - Should this timer loop
+* @param duration 	Duration for this timer
+* @param loop 		Should this timer loop
 *
 * @return - FTimer containing this timer's information
 */
 
-stock any[sizeof FTimer] ConstructTimer(float duration, bool loop = false)
+stock FTimer ConstructTimer(float duration, bool loop = false)
 {
 	FTimer timer;
 	timer.Set(duration, loop);
