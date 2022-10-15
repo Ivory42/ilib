@@ -34,6 +34,18 @@ enum struct FClient
 		return this.reference.Get();
 	}
 
+	// Increments the referenced index by one
+	void Next()
+	{
+		this.reference.Next();
+	}
+
+	// Resets this reference
+	void Clear()
+	{
+		this.reference.ref = -1;
+	}
+
 	// Returns this client's FObject reference
 	FObject GetReference()
 	{
@@ -57,6 +69,12 @@ enum struct FClient
 			return IsPlayerAlive(this.Get());
 
 		return false;
+	}
+
+	// Respawns the given client
+	void Respawn()
+	{
+		TF2_RespawnPlayer(this.Get());
 	}
 
 	/*

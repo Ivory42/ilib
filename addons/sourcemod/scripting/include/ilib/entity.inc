@@ -35,6 +35,15 @@ enum struct FObject
 		return (ent > 0 && IsValidEntity(ent));
 	}
 
+	// Increments the referenced index by one
+	void Next()
+	{
+		int current = this.Get();
+		current++;
+		
+		this.Set(current);
+	}
+
 	/*
 	* Returns true if the entity is of the given classname
 	* This isn't a true cast, as all entities are of the same type
