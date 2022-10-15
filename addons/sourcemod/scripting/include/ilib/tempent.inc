@@ -66,13 +66,13 @@ methodmap TempEnt
 		return view_as<TempEnt>(tempent_index);
 	}
 
-    /*
-    * Wrapper for TE_SetupBeamRingPoint()
-    *
-    * @param1 client - Client to send this tempent to, the world can be used to send to all
-    * @param2 origin - Position to spawn this tempent at
-    * @param3 info - Struct containing the information for this tempent
-    */
+	/*
+	* Wrapper for TE_SetupBeamRingPoint()
+	*
+	* @param1 client - Client to send this tempent to, the world can be used to send to all
+	* @param2 origin - Position to spawn this tempent at
+	* @param3 info - Struct containing the information for this tempent
+	*/
 	public void CreateRing(FClient client, FVector origin, FTempentProperties info)
 	{
 		float pos[3];
@@ -80,19 +80,19 @@ methodmap TempEnt
 
 		TE_SetupBeamRingPoint(pos, info.radius, info.end_radius, info.model, info.halo, info.start_frame, info.frame_rate, info.lifetime, info.width, info.amplitude, info.color, info.speed, info.flags);
 
-        if (IsWorld(client))
-            TE_SendToAll();
+		if (IsWorld(client))
+			TE_SendToAll();
 		else if (client.Valid())
 			TE_SendToClient(client.Get());
 	}
 
-    /*
-    * Wrapper for TE_SetupSmoke()
-    *
-    * @param1 client - Client to send this tempent to, the world can be used to send to all
-    * @param2 origin - Position to spawn this tempent at
-    * @param3 info - Struct containing the information for this tempent
-    */
+	/*
+	* Wrapper for TE_SetupSmoke()
+	*
+	* @param1 client - Client to send this tempent to, the world can be used to send to all
+	* @param2 origin - Position to spawn this tempent at
+	* @param3 info - Struct containing the information for this tempent
+	*/
 	public void CreateSmoke(FClient client, FVector origin, FTempentProperties info)
 	{
 		float pos[3];
@@ -101,18 +101,18 @@ methodmap TempEnt
 		TE_SetupSmoke(pos, info.model, info.scale, info.frame_rate);
 
 		if (IsWorld(client))
-            TE_SendToAll();
+			TE_SendToAll();
 		else if (client.Valid())
 			TE_SendToClient(client.Get());
 	}
 
-    /*
-    * Wrapper for TE_SetupExplosion()
-    *
-    * @param1 client - Client to send this tempent to, the world can be used to send to all
-    * @param2 origin - Position to spawn this tempent at
-    * @param3 info - Struct containing the information for this tempent
-    */
+	/*
+	* Wrapper for TE_SetupExplosion()
+	*
+	* @param1 client - Client to send this tempent to, the world can be used to send to all
+	* @param2 origin - Position to spawn this tempent at
+	* @param3 info - Struct containing the information for this tempent
+	*/
 	public void CreateExplosion(FVector origin, FTempentProperties info)
 	{
 		float pos[3];
@@ -120,25 +120,25 @@ methodmap TempEnt
 
 		TE_SetupExplosion(pos, info.model, info.scale, info.frame_rate, info.flags, RoundFloat(info.radius), info.magnitude);
 		
-        if (IsWorld(client))
-            TE_SendToAll();
+		if (IsWorld(client))
+			TE_SendToAll();
 		else if (client.Valid())
 			TE_SendToClient(client.Get());
 	}
 
-    /*
-    * Wrapper for TE_CreateBeamPoints()
-    *
-    * @param1 client - Client to send this tempent to, the world can be used to send to all
-    * @param2 origin - Position to spawn this tempent at
-    * @param3 info - Struct containing the information for this tempent
-    */
+	/*
+	* Wrapper for TE_CreateBeamPoints()
+	*
+	* @param1 client - Client to send this tempent to, the world can be used to send to all
+	* @param2 origin - Position to spawn this tempent at
+	* @param3 info - Struct containing the information for this tempent
+	*/
 	public void CreateBeam(FVector origin, FVector destination, FTempentProperties info)
 	{
 		TE_SetupBeamPoints(Vector_MakeFloat(origin), Vector_MakeFloat(destination), info.model, info.halo, info.start_frame, info.frame_rate, info.lifetime, info.width, info.width, info.magnitude, info.amplitude, info.color, info.speed);
 		
-        if (IsWorld(client))
-            TE_SendToAll();
+		if (IsWorld(client))
+			TE_SendToAll();
 		else if (client.Valid())
 			TE_SendToClient(client.Get());
 	}
@@ -185,7 +185,7 @@ stock void Tempent_DrawBox(FVector pos, float size)
 	info.width = 1.0;
 	info.color = {255, 255, 255, 255};
 
-    FClient world = GetWorld();
+	FClient world = GetWorld();
 
 	TempEnt laser = TempEnt();
 	laser.CreateBeam(world, max, pos1, info);

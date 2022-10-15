@@ -11,26 +11,26 @@
 */
 methodmap RayTrace < Handle
 {
-    /*
-    * Unlike normal sourcepawn traces, angles cannot be used to create an infinite trace
-    * Infinite traces use up slightly more overhead and really aren't necessary
-    */
+	/*
+	* Unlike normal sourcepawn traces, angles cannot be used to create an infinite trace
+	* Infinite traces use up slightly more overhead and really aren't necessary
+	*/
 	public RayTrace(FVector pos, FVector end, int mask, TraceEntityFilter filter, any data = -1)
 	{
 		return view_as<RayTrace>(TR_TraceRayFilterEx(Vector_MakeFloat(pos), Vector_MakeFloat(end), mask, RayType_EndPoint, filter, data));
 	}
 
-    // Returns true if this trace hit an entity
+	// Returns true if this trace hit an entity
 	public bool DidHit()
 	{
 		return TR_DidHit(this);
 	}
 
-    /*
-    * Stores the ending position of this trace
-    * 
-    * @param1 pos - Buffer to store the position
-    */
+	/*
+	* Stores the ending position of this trace
+	* 
+	* @param1 pos - Buffer to store the position
+	*/
 	public void GetEndPosition(FVector pos)
 	{
 		float end[3];
@@ -39,11 +39,11 @@ methodmap RayTrace < Handle
 		pos.Set(end);
 	}
 
-    /*
-    * Stores the starting position of this trace
-    * 
-    * @param1 pos - Buffer to store the position
-    */
+	/*
+	* Stores the starting position of this trace
+	* 
+	* @param1 pos - Buffer to store the position
+	*/
 	public void GetStartPosition(FVector pos)
 	{
 		float start[3];
@@ -52,11 +52,11 @@ methodmap RayTrace < Handle
 		pos.Set(start);
 	}
 
-    /*
-    * Stores the normal vector of this trace at its impact point
-    * 
-    * @param1 normal - Buffer to store the vector
-    */
+	/*
+	* Stores the normal vector of this trace at its impact point
+	* 
+	* @param1 normal - Buffer to store the vector
+	*/
 	public void GetNormalVector(FVector normal)
 	{
 		float pos[3];
@@ -65,21 +65,21 @@ methodmap RayTrace < Handle
 		normal.Set(pos);
 	}
 
-    /*
-    * Gets the entity index of the hit entity
-    * 
-    * @return - Entity index of the entity that was hit
-    */
+	/*
+	* Gets the entity index of the hit entity
+	* 
+	* @return - Entity index of the entity that was hit
+	*/
 	public int GetHitEntity()
 	{
 		return TR_GetEntityIndex(this);
 	}
 
-    /*
-    * Displays the trace and shows whether a hit was made or not
-    * 
-    * @param1 duration - Duration to display the trace
-    */
+	/*
+	* Displays the trace and shows whether a hit was made or not
+	* 
+	* @param1 duration - Duration to display the trace
+	*/
 	public void DebugTrace(float duration = 5.0)
 	{
 		FVector start, end;

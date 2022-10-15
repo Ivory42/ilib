@@ -22,22 +22,22 @@ enum struct FVector
 		this.z = vec[2];
 	}
 
-    // Converts this vector into a float array
-    float[] ToFloat()
-    {
-        float vec[3];
-        vec[0] = this.x;
-        vec[1] = this.y;
-        vec[2] = this.z;
+	// Converts this vector into a float array
+	float[] ToFloat()
+	{
+		float vec[3];
+		vec[0] = this.x;
+		vec[1] = this.y;
+		vec[2] = this.z;
 
-        return vec;
-    }
+		return vec;
+	}
 
 	// Gets the length of this vector
 	float Length(bool squared = false)
 	{
 		float vector[3];
-        vector = this.ToFloat();
+		vector = this.ToFloat();
 
 		return GetVectorLength(vector, squared);
 	}
@@ -69,7 +69,7 @@ enum struct FVector
 	{
 		// I hate 1.10
 		float vector[3];
-        vector = this.ToFloat();
+		vector = this.ToFloat();
 
 		NormalizeVector(vector, vector);
 
@@ -99,25 +99,25 @@ enum struct FRotator
 	float yaw;
 	float roll;
 
-    // Sets this rotator from a float array
-    void Set(float angle[3])
-    {
-        this.pitch = angle[0];
-        this.yaw = angle[1];
-        this.roll = angle[2];
-    }
+	// Sets this rotator from a float array
+	void Set(float angle[3])
+	{
+		this.pitch = angle[0];
+		this.yaw = angle[1];
+		this.roll = angle[2];
+	}
 
-    // Converts this rotator into a float array
-    float[] ToFloat()
-    {
-        float angle[3];
+	// Converts this rotator into a float array
+	float[] ToFloat()
+	{
+		float angle[3];
 
-        angle[0] = this.pitch;
-        angle[1] = this.yaw;
-        angle[2] = this.roll;
+		angle[0] = this.pitch;
+		angle[1] = this.yaw;
+		angle[2] = this.roll;
 
-        return angle;
-    }
+		return angle;
+	}
 
 	// Retrieves the forward vector of this rotator as an FVector
 	void GetForwardVector(FVector vector)
@@ -137,7 +137,7 @@ enum struct FRotator
 		rot = this.ToFloat();
 
 		GetAngleVectors(rot, NULL_VECTOR, vec, NULL_VECTOR);
-        
+		
 		vector.Set(vec);
 	}
 
@@ -148,7 +148,7 @@ enum struct FRotator
 		rot = this.ToFloat();
 
 		GetAngleVectors(rot, NULL_VECTOR, NULL_VECTOR, vec);
-        
+		
 		vector.Set(vec);
 	}
 }

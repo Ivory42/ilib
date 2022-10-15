@@ -103,7 +103,7 @@ stock void DisplayTFMessage(FClient client, const char[] message, float duration
 // Timer function used with DiplayTFMessage
 Action DisplayTFMessageTimer(Handle timer, DataPack datapack)
 {
-    data.Reset();
+	data.Reset();
 
 	FClient client;
 	client.Set(data.ReadCell());
