@@ -12,6 +12,23 @@
 #endif
 #define _ilib_included
 
+
+/*
+* Creates an FClient struct from a given object reference
+*
+* @param entity		Entity object to check
+*
+* @return			FClient info containing the entity reference
+*/
+
+stock FClient CastToClient(FObject entity)
+{
+	FClient client;
+	client.reference = entity;
+
+	return client;
+}
+
 /*
 * Interpolates between two values making a smooth transition
 *

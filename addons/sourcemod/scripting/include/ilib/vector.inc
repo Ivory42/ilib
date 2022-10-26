@@ -5,6 +5,9 @@
 #endif
 #define _ilib_vector_included
 
+#define FVector(%f, %f, %f) ConstructVector(%f, %f, %f)
+#define FRotator(%f, %f, %f) ConstructRotator(%f, %f, %f)
+
 /*
 * Wrapper for traditional float arrays
 */
@@ -168,6 +171,13 @@ enum struct FRotator
 
 // Used for null rotator inputs
 public FRotator NULL_ROTATOR;
+
+enum struct FTransform
+{
+	FVector position;
+	FRotator rotation;
+	FVector scale;
+}
 
 /*
 * Constructor for FVector types.
@@ -395,6 +405,20 @@ stock void NormalizeAngles(FRotator angle)
 }
 
 /*
+*	Constructor for FTransform types
+*/
+
+stock FTransform ConstructTransform(FVector pos, FRotator rot, FVector scale = {1.0, 1.0, 1.0})
+{
+	FTransform result;
+	result.position = pos;
+	result.rotation = rot;
+	result.scale = scale;
+
+	return result;
+}
+
+/*
 * Interpolates between two vectors to give a smooth transition
 * 
 * @param origin			Starting vector
@@ -413,24 +437,64 @@ stock void InterpVector(FVector origin, FVector destination, float time, FVector
 	buffer = result;
 }
 
+/*
+* Gets the transform of an attachment based on the attachment ID
+*
+* @param entity			Entity to look up attachment on
+* @param id				Attachment ID to look up
+* @param buffer			Buffer to store transform in
+* 
+* @return 				True on success
+*/
+
+stock bool Vector_GetEntityAttachment(FObject entity, int id, FTransform buffer)
+{
+	if (entity.Valid())
+	{
+		float pos[3], angle[3];
+
+		if (GetEntityAttachment(entity.Get(), id, pos, angle))
+		{
+			buffer = ConstructTransform(pos, angle);
+			return true;
+		}
+	}
+
+	return false;
+}
+
+/*
+* Gets the attachment position on an entity
+*
+* @param entity		Entity to get attachment from
+* @param name		Name of the attachment
+* @param buffer		Buffer to store the position in
+*
+* @return			True if the attachment was found, false if not
+*/
+
+stock bool GetAttachmentTransform(FObject entity, const char[] name, FTransform buffer)
+{
+	if (entity.Valid())
+	{
+		int id = LookupEntityAttachment(entity.Get(), name);
+
+		FTransform transform;
+		if (Vector_GetEntityAttachment(entity, id, transform))
+			return true;
+	}
+
+	return false;
+}
+
 // Interpolating angles
 
 /*
 * Currently does not work, need to figure out how to properly interpolate to the nearest angle
 * Currently can't get the value to cross from 0 to 359 or vice versa
-stock float FloatMod(float num, float denom)
-{
-	return num - denom * RoundToFloor(num / denom);
-}
-
-// I guess sourcepawn still doesn't support modulo?
-stock float operator%(float oper1, float oper2)
-{
-	return FloatMod(oper1, oper2);
-}
 
 // Doesn't seem to give expected results
-stock any[sizeof FRotator] GetShortestAngle(FRotator origin, FRotator destination)
+stock FRotator GetShortestAngle(FRotator origin, FRotator destination)
 {
 	FRotator result;
 

@@ -7,6 +7,8 @@
 #endif
 #define _ilib_entity_included
 
+#define FObject(%i) ConstructObject(%i)
+
 /*
 * Struct for storing entity references
 * Can be used to perform most actions you would normally perform on entities, just without needing to index anything or make unecessary global variables
