@@ -7,11 +7,9 @@
 #endif
 #define _ilib_entity_included
 
-#define FObject(%i) ConstructObject(%i)
-
 /*
-* Struct for storing entity references
-* Can be used to perform most actions you would normally perform on entities, just without needing to index anything or make unecessary global variables
+* Struct for storing entity references.
+* Can be used to perform most actions you would normally perform on entities.
 */
 enum struct FObject
 {
@@ -47,8 +45,10 @@ enum struct FObject
 	}
 
 	/*
-	* Returns true if the entity is of the given classname
-	* This isn't a true cast, as all entities are of the same type
+	* Returns true if the entity is of the given classname.
+	* This is NOT a true cast as entities are always just integers.
+	* 
+	* Used as a substitute for getting the classname and then comparing the name to the desired name
 	*
 	* @param class classname to check for
 	*/

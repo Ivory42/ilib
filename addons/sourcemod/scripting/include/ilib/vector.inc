@@ -5,9 +5,6 @@
 #endif
 #define _ilib_vector_included
 
-#define FVector(%f, %f, %f) ConstructVector(%f, %f, %f)
-#define FRotator(%f, %f, %f) ConstructRotator(%f, %f, %f)
-
 /*
 * Wrapper for traditional float arrays
 */
@@ -455,7 +452,14 @@ stock bool Vector_GetEntityAttachment(FObject entity, int id, FTransform buffer)
 
 		if (GetEntityAttachment(entity.Get(), id, pos, angle))
 		{
-			buffer = ConstructTransform(pos, angle);
+			FVector position;
+			FRotator rot;
+
+			position.Set(pos);
+
+			rot.Set(angle);
+
+			buffer = ConstructTransform(position, rot);
 			return true;
 		}
 	}
