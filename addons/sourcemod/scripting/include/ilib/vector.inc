@@ -173,7 +173,7 @@ enum struct FTransform
 {
 	FVector position;
 	FRotator rotation;
-	FVector scale;
+	FVector velocity;
 }
 
 /*
