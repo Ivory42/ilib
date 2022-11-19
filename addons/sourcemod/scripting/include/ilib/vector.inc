@@ -405,12 +405,12 @@ stock void NormalizeAngles(FRotator angle)
 *	Constructor for FTransform types
 */
 
-stock FTransform ConstructTransform(FVector pos, FRotator rot, FVector scale = {1.0, 1.0, 1.0})
+stock FTransform ConstructTransform(FVector pos, FRotator rot, FVector vel = {0.0, 0.0, 0.0})
 {
 	FTransform result;
 	result.position = pos;
 	result.rotation = rot;
-	result.scale = scale;
+	result.velocity = vel;
 
 	return result;
 }

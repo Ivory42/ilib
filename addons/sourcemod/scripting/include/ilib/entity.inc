@@ -101,6 +101,18 @@ enum struct FObject
 		if (this.Valid())
 			GetEntityClassname(this.Get(), classname, size);
 	}
+	
+	/*
+	* Gets this object's targetname and stores it in the buffer
+	*
+	* @param targetname buffer to store the name into
+	* @param size size of the buffer
+	*/
+	void GetTargetName(char[] targetname, int size)
+	{
+		if (this.Valid())
+			GetEntPropString(this.Get(), Prop_Data, "m_iName", targetname, size);
+	}
 
 	/*
 	* Wrapper for AcceptEntityInput()
