@@ -35,6 +35,16 @@ enum struct FObject
 		return (ent > 0 && IsValidEntity(ent));
 	}
 
+	// Returns the parent this entity is attached to
+	FObject GetParent()
+	{
+		FObject parent;
+		if (this.Valid())
+			parent.Set(GetEntPropEnt(this.Get(), Prop_Send, "m_hMoveParent"));
+		
+		return parent;
+	}
+
 	// Increments the referenced index by one
 	void Next()
 	{
@@ -425,9 +435,9 @@ enum struct FObject
 	}
 
 	/*
-	* Stores the position of this object in an FVector
+	* Gets the relative, or world position if no parent exists, of this object
 	*
-	* @return - FVector containing this object's position
+	* @return		FVector containing the position
 	*/
 	FVector GetPosition()
 	{
@@ -497,7 +507,7 @@ enum struct FObject
 	*
 	* @param parent 	Parent object to attach to
 	*/
-	void Attach(FObject parent)
+	void SetParent(FObject parent)
 	{
 		if (this.Valid())
 		{
@@ -507,6 +517,15 @@ enum struct FObject
 			SetVariantString("!activator");
 			AcceptEntityInput(this.Get(), "SetParent", parent.Get(), this.Get());
 		}
+	}
+
+	// Returns the current health value of this entity
+	int GetHealth()
+	{
+		if (this.Valid())
+			return GetEntProp(this.Get(), Prop_Data, "m_iHealth");
+
+		return 0;
 	}
 
 	/*
@@ -537,7 +556,7 @@ enum struct FObject
 			particle.Input("Start");
 
 			SetVariantString("!activator");
-			particle.Attach(this);
+			particle.SetParent(this);
 		}
 		return particle;
 	}

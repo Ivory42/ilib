@@ -317,6 +317,24 @@ stock void Vector_GetClientEyePosition(int client, FVector vector)
 	Vector_MakeFromFloat(vector, pos);
 }
 
+/**
+ * Wrapper for kv::GetVector() compatible with FVector
+ * 
+ * @param kv      KeyValues tree to pull from
+ * @param key     Key name to search for
+ * @return        Return FVector containing vector
+ */
+FVector Vector_GetFromKV(KeyValues kv, const char[] key)
+{
+	FVector vector;
+
+	float vec[3];
+	kv.GetVector(key, vec);
+
+	vector.Set(vec);
+
+	return vector;
+}
 
 /* Constructor for FRotator types
 * Can be left blank to create a zero vector
