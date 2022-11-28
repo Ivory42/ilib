@@ -435,11 +435,25 @@ enum struct FObject
 	}
 
 	/*
-	* Gets the relative, or world position if no parent exists, of this object
+	* Gets the world position of this object
 	*
 	* @return		FVector containing the position
 	*/
 	FVector GetPosition()
+	{
+		FVector pos;
+		if (this.Valid())
+			this.GetPropVector(Prop_Data, "m_vecAbsOrigin", pos);
+
+		return pos;
+	}
+	
+	/*
+	* Gets the relative position of this object. If no valid parent, returns the world position.
+	*
+	* @return		FVector containing the position
+	*/
+	FVector GetRelativePosition()
 	{
 		FVector pos;
 		if (this.Valid())
