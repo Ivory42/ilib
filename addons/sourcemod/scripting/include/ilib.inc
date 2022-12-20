@@ -32,11 +32,11 @@ stock FClient CastToClient(FObject entity)
 /*
 * Interpolates between two values making a smooth transition
 *
-* @param current Starting value
-* @param target Target value
-* @param time Time interval for interpolation speed
+* @param current 	Starting value
+* @param target 	Target value
+* @param time 		Time interval for interpolation speed
 *
-* @return - Interpolated value between the current and target
+* @return 			Interpolated value between the current and target
 */
 stock float InterpolateFloat(float current, float target, float time)
 {
@@ -46,11 +46,11 @@ stock float InterpolateFloat(float current, float target, float time)
 /*
 * Gets an angle in degrees between two rotators
 * 
-* @param origin Origin angle
+* @param origin 	Origin angle
 *
-* @param target Target angle
+* @param target 	Target angle
 *
-* @return - Float value of angle in degrees 
+* @return 			Float value of angle in degrees 
 */
 stock float GetAngle(FRotator origin, FRotator target)
 {
@@ -84,9 +84,9 @@ stock FRotator CalcAngle(FVector origin, FVector destination)
 // Emits the given sound to all players
 stock void EmitSoundToPlayers(const char[] sample)
 {
+	FClient client;
 	for (int i = 1; i <= MaxClients; i++)
 	{
-		FClient client;
 		client.Set(i);
 		if (client.Valid())
 			EmitSoundToClient(client.Get(), sample);
@@ -96,10 +96,10 @@ stock void EmitSoundToPlayers(const char[] sample)
 /*
 * Creates a tf_hud_text object and prepares a timer to display it for the given duration
 *
-* @param client Client reference to display this message to
-* @param message Message to display
-* @param duration Duration to hold the message for
-* @param icon Icon to use for the message
+* @param client		Client reference to display this message to
+* @param message 	Message to display
+* @param duration 	Duration to hold the message for
+* @param icon 		Icon to use for the message
 */
 stock void DisplayTFMessage(FClient client, const char[] message, float duration, const char[] icon = "leaderboard_streak")
 {
@@ -159,19 +159,19 @@ Action DisplayTFMessageTimer(Handle timer, DataPack data)
 /*
 * Displays a tf_hud_text to the given client
 *
-* If the message needs to persist for a specific time, use DisplayTFMessage instead
-* The Handle created from this message is garbage collected and does not need to be closed
+* If the message needs to persist for a specific time, use DisplayTFMessage instead.
+* The Handle created from this message is closed on its own
 *
-* @param client Client reference to display this text to
+* @param client 	Client reference to display this text to
 *
-* @param message Message to display
+* @param message 	Message to display
 *
-* @param icon Icon used with this message
+* @param icon 		Icon used with this message
 *
 */
 stock void WriteGameText(FClient client, const char[] message, const char[] icon = "leaderboard_streak")
 {
-	Handle GlobalText = StartMessageOne("HudNotifyCustom", client.Get()); // This handle is garbage collected, we don't need to worry about it
+	Handle GlobalText = StartMessageOne("HudNotifyCustom", client.Get()); // This handle seems to be invalid after the message disappears?
 
 	SetGlobalTransTarget(client.Get());
 	BfWriteString(GlobalText, message);
