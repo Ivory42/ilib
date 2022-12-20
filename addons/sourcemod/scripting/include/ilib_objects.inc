@@ -1,9 +1,9 @@
 #include "ilib/objects/rocket.inc"
 
-#if defined _ilib_included
+#if defined _ilib_objects_included
  #endinput
 #endif
-#define _ilib_included
+#define _ilib_objects_included
 
 /*
 * A set of optional headers that contain convenient structs for different entity types.
