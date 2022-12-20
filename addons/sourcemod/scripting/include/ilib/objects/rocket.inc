@@ -180,13 +180,10 @@ stock FRocket CastToRocket(FObject entity)
 */
 stock void GetRocketSpeed(FRocket rocket)
 {
-	if (rocket.Valid())
-	{
-		FVector vel;
-		rocket.GetObject().GetPropVector(Prop_Data, "m_vecVelocity", vel);
+	FVector vel;
+	rocket.GetObject().GetPropVector(Prop_Data, "m_vecVelocity", vel);
 
-		float speed = vel.Length();
+	float speed = vel.Length();
 
-		rocket.Speed = speed;
-	}
+	rocket.Speed = speed;
 }
