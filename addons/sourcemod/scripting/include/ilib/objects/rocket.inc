@@ -37,10 +37,16 @@ enum struct FRocket
 		return this.GetObject().Get();
 	}
 
-	// Checks if this is a valid rocket
+	// Checks if the object reference is valid
 	bool Valid()
 	{
-		if (this.GetObject().Valid())
+		return this.GetObject().Valid();
+	}
+
+	// Checks if this is a valid rocket
+	bool IsRocket()
+	{
+		if (this.Valid())
 		{
 			if (this.GetObject().Cast("tf_projectile_rocket"))
 				return true;
@@ -62,7 +68,7 @@ enum struct FRocket
 	*/
 	void FireProjectile(FRotator direction)
 	{
-		if (this.Valid())
+		if (this.IsRocket())
 		{
 			FVector uDir = direction.GetForwardVector(); // Get the unit direction
 			uDir.Scale(this.Speed);
@@ -88,7 +94,7 @@ enum struct FRocket
 	*/
 	void SetDamage(float damage)
 	{
-		if (this.Valid())
+		if (this.IsRocket())
 			SetEntDataFloat(this.Get(), FindSendPropInfo(this.GetRocketType(), "m_iDeflected") + 4, damage);
 	}
 }
