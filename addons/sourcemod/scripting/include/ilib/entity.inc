@@ -111,6 +111,18 @@ enum struct FObject
 		if (this.Valid())
 			GetEntityClassname(this.Get(), classname, size);
 	}
+
+	/*
+	* Wrapper for GetEntityNetClass()
+	*
+	* @param netname		Buffer to store the class in
+	* @param size			Size of the buffer
+	*/
+	void GetNetClass(char[] netname, int size)
+	{
+		if (this.Valid())
+			GetEntityNetClass(this.Get(), netname, size);
+	}
 	
 	/*
 	* Gets this object's targetname and stores it in the buffer
@@ -607,4 +619,46 @@ stock FObject ConstructObject(int index)
 	entity.Set(index);
 
 	return entity;
+}
+
+/*
+* Creates and spawns an object with the given classname. Use CreateObjectDeferred() if you need to set any properties before spawning.
+*
+* @param classname		Classname of the entity to spawn
+*/
+stock FObject CreateObject(const char[] classname)
+{
+	FObject entity;
+
+	entity.Create(classname);
+
+	entity.Spawn();
+	entity.Activate();
+
+	return entity;
+}
+
+/*
+* Creates an object with the given classname, but does not spawn it. Call FinishSpawn() when this object is ready to be spawned.
+*
+* @param classname		Classname of the entity to create
+*/
+stock FObject CreateObjectDeferred(const char[] classname)
+{
+	FObject entity;
+
+	entity.Create(classname);
+
+	return entity;
+}
+
+/*
+* Finishes spawning this entity and activates it.
+*
+* @param entity		Object reference to spawn
+*/
+stock void FinishSpawn(FObject entity)
+{
+	entity.Spawn();
+	entity.Activate();
 }
