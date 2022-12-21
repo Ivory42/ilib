@@ -47,7 +47,7 @@ enum struct FClient
 	}
 
 	// Returns this client's FObject reference
-	FObject GetReference()
+	FObject GetObject()
 	{
 		return this.reference;
 	}

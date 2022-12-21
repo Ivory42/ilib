@@ -179,3 +179,48 @@ stock void WriteGameText(FClient client, const char[] message, const char[] icon
 	BfWriteByte(GlobalText, client.GetTeam());
 	EndMessage();
 }
+
+// Interpolating angles - The following has been ported from UE5's FMath class
+
+// From UE5 FMath::RInterpConstantTo
+/*
+* Interpolates from a starting angle to the given target angle in a smooth transition
+*
+* @param current		Starting angle
+* @param target			Angle to interpolate to
+* @param delta			Length of distance between starting and target angles (from 0.0 to 1.0)
+* @param speed			How fast the interpolation should be (value of 0.0 = no interpolation).
+*
+* @return 				Angle between the current and target rotators based on the delta given		
+*/
+stock FRotator InterpRotation(const FRotator current, const FRotator target, float delta, float speed)
+{
+	// if DeltaTime is 0, do not perform any interpolation (Location was already calculated for that frame)
+	if (delta == 0.0 || current.IsEqual(target))
+		return current;
+
+	// If no interp speed, jump to target value
+	if (speed <= 0.0)
+	{
+		return target;
+	}
+
+	const float deltaSpeed = speed * delta;
+	
+	const FRotator deltaRotation;
+	deltaRotation = (target - current).GetNormalized();
+
+	FRotator result;
+	result = current;
+
+	result.Pitch += ClampFloat(deltaRotation.pitch, -deltaSpeed, deltaSpeed);
+	result.yaw += ClampFloat(deltaRotation.yaw, -deltaSpeed, DdeltaSpeed);
+	result.roll += ClampFloat(deltaRotation.roll, -deltaSpeed, deltaSpeed);
+	return result.GetNormalized();
+}
+
+// Clamps the float value between min and max
+stock float ClampFloat(const float value, const float min, const float max)
+{
+	return (value < min) ? min : (value < max) ? value : max;
+}

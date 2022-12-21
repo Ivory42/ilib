@@ -164,6 +164,17 @@ enum struct FRotator
 
 		return vector;
 	}
+
+	// Normalizes this rotation's axes and returns as a value
+	FRotator GetNormalized()
+	{
+		while (this.pitch > 89.0) this.pitch -= 180.0;
+		while (this.pitch < -89.0) this.pitch += 180.0;
+		while (this.yaw > 180.0) this.yaw -= 360.0;
+		while (this.yaw < -180.0) this.yaw += 360.0;
+
+		return this;
+	}
 }
 
 // Used for null rotator inputs
@@ -324,7 +335,7 @@ stock void Vector_GetClientEyePosition(int client, FVector vector)
  * @param key     Key name to search for
  * @return        Return FVector containing vector
  */
-FVector Vector_GetFromKV(KeyValues kv, const char[] key)
+stock FVector Vector_GetFromKV(KeyValues kv, const char[] key)
 {
 	FVector vector;
 
@@ -508,8 +519,6 @@ stock bool GetAttachmentTransform(FObject entity, const char[] name, FTransform 
 
 	return false;
 }
-
-// Interpolating angles
 
 /*
 * Currently does not work, need to figure out how to properly interpolate to the nearest angle
