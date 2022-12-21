@@ -175,6 +175,15 @@ enum struct FRotator
 
 		return this;
 	}
+	
+	// Checks if this rotator is equal to another
+	bool IsEqual(FRotator rotation)
+	{
+		if (this.pitch == rotation.pitch && this.yaw == rotation.yaw && this.roll == rotation.yaw)
+			return true;
+			
+		return false;
+	}
 }
 
 // Used for null rotator inputs
@@ -494,6 +503,27 @@ stock bool Vector_GetEntityAttachment(FObject entity, int id, FTransform buffer)
 	}
 
 	return false;
+}
+
+/*
+* Subtracts two rotators
+*
+* @param1 rot1		First rotator
+* @param2 rot2		Rotator to subtract from the first
+*
+* @return 			Result of operation
+*/
+
+stock FRotator SubtractRotators(const FRotator rot1, const FRotator rot2)
+{
+	float result[3];
+	
+	SubtractVectors(rot1.ToFloat(), rot2.ToFloat(), result);
+	
+	FRotator rotation;
+	Rotator_MakeFromFloat(rotation, result);
+	
+	return rotation;
 }
 
 /*
