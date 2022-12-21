@@ -514,7 +514,7 @@ stock bool Vector_GetEntityAttachment(FObject entity, int id, FTransform buffer)
 * @return 			Result of operation
 */
 
-stock FRotator SubtractRotators(const FRotator rot1, const FRotator rot2)
+stock FRotator SubtractRotators(FRotator rot1, FRotator rot2)
 {
 	float result[3];
 	

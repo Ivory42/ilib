@@ -193,7 +193,7 @@ stock void WriteGameText(FClient client, const char[] message, const char[] icon
 *
 * @return 				Angle between the current and target rotators based on the delta given		
 */
-stock FRotator InterpRotation(const FRotator current, const FRotator target, float delta, float speed)
+stock FRotator InterpRotation(FRotator current, FRotator target, float delta, float speed)
 {
 	// if DeltaTime is 0, do not perform any interpolation (Location was already calculated for that frame)
 	if (delta == 0.0 || current.IsEqual(target))
@@ -205,16 +205,16 @@ stock FRotator InterpRotation(const FRotator current, const FRotator target, flo
 		return target;
 	}
 
-	const float deltaSpeed = speed * delta;
+	float deltaSpeed = speed * delta;
 	
-	const FRotator deltaRotation;
-	deltaRotation = (target - current).GetNormalized();
+	FRotator deltaRotation;
+	deltaRotation = SubtractRotators(target, current).GetNormalized()
 
 	FRotator result;
 	result = current;
 
-	result.Pitch += ClampFloat(deltaRotation.pitch, -deltaSpeed, deltaSpeed);
-	result.yaw += ClampFloat(deltaRotation.yaw, -deltaSpeed, DdeltaSpeed);
+	result.pitch += ClampFloat(deltaRotation.pitch, -deltaSpeed, deltaSpeed);
+	result.yaw += ClampFloat(deltaRotation.yaw, -deltaSpeed, deltaSpeed);
 	result.roll += ClampFloat(deltaRotation.roll, -deltaSpeed, deltaSpeed);
 	return result.GetNormalized();
 }
