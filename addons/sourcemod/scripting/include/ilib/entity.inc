@@ -502,11 +502,16 @@ enum struct FObject
 				owner = this.GetPropEnt(Prop_Send, "m_hOwnerEntity");
 
 			// Some projectiles use m_hThrower instead of m_hOwnerEntity
-			if (!owner.Valid() && this.HasProp(Prop_Send, "m_hThrower"))
+			else if (this.HasProp(Prop_Send, "m_hThrower"))
 				owner = this.GetPropEnt(Prop_Send, "m_hThrower");
+			
+			// Buildings!
+			else if (this.HasProp(Prop_Send, "m_hBuilder"))
+				owner = this.GetPropEnt(Prop_Send, "m_hBuilder");
 
-			// If no owner found, return itself
-			owner = this;
+			// If no owner is found, return itself
+			if (!owner.Valid())
+				owner = this;
 		}
 		return owner;
 	}
@@ -523,8 +528,11 @@ enum struct FObject
 			if (this.HasProp(Prop_Send, "m_hOwnerEntity"))
 				this.SetPropEnt(Prop_Send, "m_hOwnerEntity", owner);
 
-			if (this.HasProp(Prop_Send, "m_hThrower"))
+			else if (this.HasProp(Prop_Send, "m_hThrower"))
 				this.SetPropEnt(Prop_Send, "m_hThrower", owner);
+
+			else if (this.HasProp(Prop_Send, "m_hBuilder"))
+				this.SetPropEnt(Prop_Send, "m_hBuilder", owner);
 		}
 	}
 
