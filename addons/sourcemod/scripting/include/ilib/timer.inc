@@ -116,15 +116,16 @@ enum struct FTimer
 * Creates a timer and returns its information as an FTimer
 *
 * @param duration 	Duration for this timer
+* @param paused		Should this timer start paused
 * @param loop 		Should this timer loop
 *
 * @return - FTimer containing this timer's information
 */
 
-stock FTimer ConstructTimer(float duration, bool loop = false)
+stock FTimer ConstructTimer(float duration, bool paused = true, bool loop = false)
 {
 	FTimer timer;
-	timer.Set(duration, loop);
+	timer.Set(duration, pasued, loop);
 
 	return timer;
 }
