@@ -125,7 +125,7 @@ enum struct FTimer
 stock FTimer ConstructTimer(float duration, bool paused = true, bool loop = false)
 {
 	FTimer timer;
-	timer.Set(duration, pasued, loop);
+	timer.Set(duration, paused, loop);
 
 	return timer;
 }
