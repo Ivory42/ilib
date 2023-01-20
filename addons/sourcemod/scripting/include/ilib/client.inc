@@ -107,6 +107,20 @@ enum struct FClient
 			TeleportEntity(this.Get(), position, angles, velocity);
 		}
 	}
+	
+	/*
+	* Sets the rotation and velocity of this client
+	*
+	* @param rot 	Rotation to set
+	* @param vel 	Velocity to set
+	*/
+	void SetVelocityRotation(FRotator rot, FVector vel)
+	{
+		if (this.Valid())
+		{
+			TeleportEntity(this.Get(), NULL_VECTOR, rot.ToFloat(), vel.ToFloat());
+		}
+	}
 
 	// Retrieves this client's team as an integer
 	int GetTeam()

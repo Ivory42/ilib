@@ -498,15 +498,15 @@ enum struct FObject
 		FObject owner;
 		if (this.Valid())
 		{
-			if (this.HasProp(Prop_Send, "m_hOwnerEntity"))
+			if (this.HasProp(Prop_Send, "m_hOwnerEntity")) // Not ideal to check all of these at once but it's safer
 				owner = this.GetPropEnt(Prop_Send, "m_hOwnerEntity");
 
 			// Some projectiles use m_hThrower instead of m_hOwnerEntity
-			else if (this.HasProp(Prop_Send, "m_hThrower"))
+			if (!owner.Valid() && this.HasProp(Prop_Send, "m_hThrower"))
 				owner = this.GetPropEnt(Prop_Send, "m_hThrower");
 			
 			// Buildings!
-			else if (this.HasProp(Prop_Send, "m_hBuilder"))
+			if (!owner.Valid() && this.HasProp(Prop_Send, "m_hBuilder"))
 				owner = this.GetPropEnt(Prop_Send, "m_hBuilder");
 
 			// If no owner is found, return itself
@@ -560,6 +560,20 @@ enum struct FObject
 			return GetEntProp(this.Get(), Prop_Data, "m_iHealth");
 
 		return 0;
+	}
+	
+	/*
+	* Gets the velocity of this entity
+	*
+	* @return - FVector containing this client's velocity
+	*/
+	FVector GetVelocity()
+	{
+		FVector vel;
+		if (this.Valid())
+			Vector_GetProperty(this.Get(), Prop_Data, "m_vecVelocity", vel);
+
+		return vel;
 	}
 
 	/*
