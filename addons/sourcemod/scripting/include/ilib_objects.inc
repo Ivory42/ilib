@@ -1,4 +1,8 @@
+#include <tf2attributes> // required for weapons module
+
 #include "ilib/objects/rocket.inc"
+#include "ilib/objects/particle.inc"
+#include "ilib/objects/weapon.inc"
 
 #if defined _ilib_objects_included
  #endinput

@@ -51,7 +51,7 @@ enum struct FRocket
 			if (this.GetObject().Cast("tf_projectile_rocket"))
 				return true;
 			
-			if (this.GetObect().Cast("tf_projectile_energy_ball"))
+			if (this.GetObject().Cast("tf_projectile_energy_ball"))
 				return true;
 
 			if (this.GetObject().Cast("tf_projectile_sentryrocket"))
@@ -70,7 +70,8 @@ enum struct FRocket
 	{
 		if (this.IsRocket())
 		{
-			FVector uDir = direction.GetForwardVector(); // Get the unit direction
+			FVector uDir;
+			uDir = direction.GetForwardVector(); // Get the unit direction
 			uDir.Scale(this.Speed);
 
 			this.GetObject().SetVelocityRotation(direction, uDir); // Fire the rocket
@@ -115,15 +116,17 @@ stock FRocket CreateRocket(FRotator angle, ERocketType type = Rocket_Default, fl
 
 	switch (type)
 	{
-		case Rocket_Default: FormatEx(classname, "tf_projectile_rocket");
-		case Rocket_Plasma:	FormatEx(classname, "tf_projectile_energy_ball");
-		case Rocket_Sentry:	FormatEx(classname, "tf_projectile_sentryrocket");
+		case Rocket_Default: FormatEx(classname, sizeof classname, "tf_projectile_rocket");
+		case Rocket_Plasma:	FormatEx(classname, sizeof classname, "tf_projectile_energy_ball");
+		case Rocket_Sentry:	FormatEx(classname, sizeof classname, "tf_projectile_sentryrocket");
 	}
 	rocket.Reference = CreateObject(classname);
 	rocket.Speed = speed;
 	rocket.SetDamage(damage);
 
 	rocket.FireProjectile(angle); // Fire the rocket
+	
+	return rocket;
 }
 
 /*
@@ -140,14 +143,16 @@ stock FRocket CreateRocketDeferred(ERocketType type = Rocket_Default, float spee
 
 	switch (type)
 	{
-		case Rocket_Default: FormatEx(classname, "tf_projectile_rocket");
-		case Rocket_Plasma:	FormatEx(classname, "tf_projectile_energy_ball");
-		case Rocket_Sentry:	FormatEx(classname, "tf_projectile_sentryrocket");
+		case Rocket_Default: FormatEx(classname, sizeof classname, "tf_projectile_rocket");
+		case Rocket_Plasma:	FormatEx(classname, sizeof classname, "tf_projectile_energy_ball");
+		case Rocket_Sentry:	FormatEx(classname, sizeof classname, "tf_projectile_sentryrocket");
 	}
 
 	rocket.Reference = CreateObjectDeferred(classname);
 	rocket.Speed = speed;
 	rocket.SetDamage(damage);
+	
+	return rocket;
 }
 
 /*

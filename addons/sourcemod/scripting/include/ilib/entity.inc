@@ -679,8 +679,10 @@ stock FObject CreateObjectDeferred(const char[] classname)
 *
 * @param entity		Object reference to spawn
 */
-stock void FinishSpawn(FObject entity)
+stock void FinishSpawn(FObject entity, FTransform spawn)
 {
 	entity.Spawn();
 	entity.Activate();
+	
+	entity.Teleport(spawn.position, spawn.rotation, spawn.velocity);
 }
