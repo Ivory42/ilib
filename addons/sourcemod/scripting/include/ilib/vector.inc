@@ -199,17 +199,11 @@ enum struct FTransform
 /*
 * Constructor for FVector types.
 * Can be left blank to create a zero vector.
-* Filling in only the first axis will auto fill the rest
 */
 stock FVector ConstructVector(float x = 0.0, float y = 0.0, float z = 0.0)
 {
 	FVector vector;
 	vector.x = x;
-	if (y == 0.0 && z == 0.0)
-	{
-		y = x;
-		z = x;
-	}
 	vector.y = y;
 	vector.z = z;
 

@@ -62,6 +62,50 @@ stock float GetAngle(FRotator origin, FRotator target)
 	return RadToDeg(ArcCosine(Vector_DotProduct(aim, ang) / aim.Length(true)));
 }
 
+stock FVector operator+(FVector vec1, FVector vec2)
+{
+	FVector result;
+	result.x = vec1.x + vec2.x;
+	result.y = vec1.y + vec2.y;
+	result.z = vec1.z + vec2.z;
+
+	return result;
+}
+
+/*
+* Offsets the input vector by the given offset vector based on the given angle
+*
+* @param input		Original vector
+*
+* @param angle		Relative angle to use for offset
+*
+* @param offset		Vector to use as an offset
+*
+* @return			FVector offset from the given input vector relative to the given angle
+*/
+
+stock FVector OffsetVector(FVector input, FRotator angle, FVector offset)
+{
+	FVector result;
+	result = input;
+
+	FVector interimVec;
+	interimVec = angle.GetForwardVector();
+	interimVec.Scale(offset.x);
+	Vector_Add(interimVec, result, result);
+
+	interimVec = angle.GetRightVector();
+	interimVec.Negate();
+	interimVec.Scale(offset.y);
+	Vector_Add(interimVec, result, result);
+
+	interimVec = angle.GetUpVector();
+	interimVec.Scale(offset.z);
+	Vector_Add(interimVec, result, result);
+
+	return result;
+}
+
 /*
 * Gets the rotation between two locations in world space
 *
