@@ -489,6 +489,19 @@ enum struct FObject
 	}
 
 	/*
+	* Sets this entity's rotation angles
+	*
+	* @param angles		FRotator angle to set this entity's angles to
+	*/
+	void SetAngles(FRotator angles)
+	{
+		if (this.Valid())
+		{
+			this.SetPropRotator(Prop_Send, "m_angRotation", angles);
+		}
+	}
+
+	/*
 	* Gets the owner of this object
 	*
 	* @return - The object reference of the owner or itself if no owner is found

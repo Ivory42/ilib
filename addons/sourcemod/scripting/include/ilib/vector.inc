@@ -168,11 +168,13 @@ enum struct FRotator
 	// Normalizes this rotation's axes and returns as a value
 	FRotator GetNormalized()
 	{
-		while (this.pitch > 89.0) this.pitch -= 180.0;
-		while (this.pitch < -89.0) this.pitch += 180.0;
+		while (this.pitch > 180.0) this.pitch -= 360.0;
+		while (this.pitch < -180.0) this.pitch += 360.0;
 		while (this.yaw > 180.0) this.yaw -= 360.0;
 		while (this.yaw < -180.0) this.yaw += 360.0;
-
+		while (this.roll > 180.0) this.roll -= 360.0;
+		while (this.roll < -180.0) this.roll += 360.0;
+		
 		return this;
 	}
 	
@@ -402,6 +404,25 @@ stock float[] Rotator_MakeFloat(FRotator rotation)
 	rot[0] = rotation.pitch;
 	rot[1] = rotation.yaw;
 	rot[2] = rotation.roll;
+
+	return rot;
+}
+
+/**
+ * Wrapper for kv::GetVector() compatible with FRotator
+ * 
+ * @param kv      KeyValues tree to pull from
+ * @param key     Key name to search for
+ * @return        Return FRotator containing angles
+ */
+stock FRotator Rotator_GetFromKV(KeyValues kv, const char[] key)
+{
+	FRotator rot;
+
+	float vec[3];
+	kv.GetVector(key, vec);
+
+	rot.Set(vec);
 
 	return rot;
 }
