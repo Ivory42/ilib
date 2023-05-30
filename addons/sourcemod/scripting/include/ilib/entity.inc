@@ -172,6 +172,42 @@ enum struct FObject
 	}
 
 	/*
+	* Wrapper for DispatchKeyValueInt()
+	*
+	* @param key Name of the key to set the value of
+	* @param value Value to set on the key, as an integer
+	*/
+	void SetKeyValueInt(const char[] key, int value)
+	{
+		if (this.Valid())
+			DispatchKeyValueInt(this.Get(), key, value);
+	}
+
+	/*
+	* Wrapper for DispatchKeyValueFloat()
+	*
+	* @param key Name of the key to set the value of
+	* @param value Value to set on the key, as a float
+	*/
+	void SetKeyValueFloat(const char[] key, float value)
+	{
+		if (this.Valid())
+			DispatchKeyValueFloat(this.Get(), key, value);
+	}
+
+	/*
+	* Wrapper for DispatchKeyValueInt()
+	*
+	* @param key Name of the key to set the value of
+	* @param value Value to set on the key, as an FVector
+	*/
+	void SetKeyValueVector(const char[] key, FVector value)
+	{
+		if (this.Valid())
+			DispatchKeyValueVector(this.Get(), key, value.ToFloat());
+	}
+
+	/*
 	* Wrapper for SetEntityModel()
 	*
 	* @param model path of the model to set on this entity
@@ -486,19 +522,6 @@ enum struct FObject
 			this.GetPropRotator(Prop_Send, "m_angRotation", rot);
 
 		return rot;
-	}
-
-	/*
-	* Sets this entity's rotation angles
-	*
-	* @param angles		FRotator angle to set this entity's angles to
-	*/
-	void SetAngles(FRotator angles)
-	{
-		if (this.Valid())
-		{
-			this.SetPropRotator(Prop_Send, "m_angRotation", angles);
-		}
 	}
 
 	/*
