@@ -18,6 +18,8 @@ enum EWeaponType
 
 /*
 * Map used to wrap around tf_point_weapon_mimic
+* Can't seem to get projectiles fired by this entity so not as useful as it could be. It could still be used as some sort of map hazard
+* or for anything that doesn't need to have a player as the owner
 * 
 */
 
@@ -26,16 +28,10 @@ methodmap FProjectileLauncher
 	/*
 	* Creates a projectile launcher with the given type and properties
 	*
-	* @param cast			Use this constructor as a cast
 	* @param entity			If casting, test this entity
-	* @param type       	Weapon type to use, see EWeaponType
-	* @param minSpeed		Minimum speed to use for the projectiles
-	* @param maxSpeed		Maxmimum speed to use for the projectiles
-	* @param damage			Damage the projectiles should deal
-	* @param blastradius	Blast radius, if applicable
-	* @param inaccuracy		Spread angle of this launcher
+	* @param cast			Use this constructor as a cast
 	* 
-	* @return Wrapper for a deferred FObject. Use FinishSpawn() to activate
+	* @return Wrapper for a deferred FObject. Use FinishSpawn() to activate if not casting
 	*/
 	public FProjectileLauncher(FObject entity = {}, bool cast = false)
 	{
