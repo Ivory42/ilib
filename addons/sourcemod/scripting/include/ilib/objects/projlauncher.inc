@@ -38,19 +38,15 @@ methodmap FProjectileLauncher
 		// Cast to the given entity first
 		if (entity.Valid() && cast)
 		{
-			char classname[64];
-			entity.GetClassname(classname, sizeof classname);
-			PrintToChatAll("[CAST] Checking entity %s\n---------------", classname);
 			if (entity.Cast("tf_point_weapon_mimic"))
 				return view_as<FProjectileLauncher>(entity.ref);
-			else return view_as<FProjectileLauncher>(0);
-
+			else 
+				return view_as<FProjectileLauncher>(0);
 		}
 
 		// If we are not given an entity and we aren't casting, create a new launcher
 		else if (!entity.Valid() && !cast)
 		{
-			PrintToChatAll("Creating new launcher");
 			FObject launcher;
 			launcher = CreateObjectDeferred("tf_point_weapon_mimic");
 
@@ -78,7 +74,6 @@ methodmap FProjectileLauncher
 		}
 		else // Otherwise don't create anything
 		{
-			PrintToChatAll("Cast Failed");
 			return view_as<FProjectileLauncher>(0);
 		}
 	}
