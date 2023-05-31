@@ -3,6 +3,7 @@
 #include "ilib/objects/rocket.inc"
 #include "ilib/objects/particle.inc"
 #include "ilib/objects/weapon.inc"
+#include "ilib/objects/projlauncher.inc"
 
 #if defined _ilib_objects_included
  #endinput

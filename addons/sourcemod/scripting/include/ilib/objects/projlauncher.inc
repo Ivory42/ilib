@@ -37,36 +37,54 @@ methodmap FProjectileLauncher
 	* 
 	* @return Wrapper for a deferred FObject. Use FinishSpawn() to activate
 	*/
-	public FProjectileLauncher(bool cast = false, FObject entity = {}, EWeaponType type = WeaponType_Rocket, float minSpeed = 1100.0, float maxSpeed = 1100.0, int damage = 90, float blastradius = 146.0, float inaccuracy = 0.0)
+	public FProjectileLauncher(FObject entity = {}, bool cast = false)
 	{
-		// Can't overload constructors so just doing this instead
-		if (!cast)
+		// Cast to the given entity first
+		if (entity.Valid() && cast)
 		{
+			char classname[64];
+			entity.GetClassname(classname, sizeof classname);
+			PrintToChatAll("[CAST] Checking entity %s\n---------------", classname);
+			if (entity.Cast("tf_point_weapon_mimic"))
+				return view_as<FProjectileLauncher>(entity.ref);
+			else return view_as<FProjectileLauncher>(0);
+
+		}
+
+		// If we are not given an entity and we aren't casting, create a new launcher
+		else if (!entity.Valid() && !cast)
+		{
+			PrintToChatAll("Creating new launcher");
 			FObject launcher;
 			launcher = CreateObjectDeferred("tf_point_weapon_mimic");
 
+			// Setup default values
+			EWeaponType type = WeaponType_Rocket;
+			int damage = 90;
+			float speed = 1100.0;
+			float blastradius = 146.0;
+			float scale = 1.0;
+			
 			launcher.SetProp(Prop_Data, "m_nWeaponType", view_as<int>(type));
 
 			// Speeds
-			launcher.SetPropFloat(Prop_Data, "m_flSpeedMin", minSpeed);
-			launcher.SetPropFloat(Prop_Data, "m_flSpeedMax", maxSpeed);
+			launcher.SetPropFloat(Prop_Data, "m_flSpeedMin", speed);
+			launcher.SetPropFloat(Prop_Data, "m_flSpeedMax", speed);
 
 			// Damage and radius
 			launcher.SetKeyValueInt("Damage", damage);
 			launcher.SetPropFloat(Prop_Data, "m_flSplashRadius", blastradius);
 
-			// Spread
-			launcher.SetPropFloat(Prop_Data, "m_flSpreadAngle", inaccuracy);
-
 			// Set the scale
-			launcher.SetPropFloat(Prop_Data, "m_flModelScale", 1.0);
+			launcher.SetPropFloat(Prop_Data, "m_flModelScale", scale);
 
 			return view_as<FProjectileLauncher>(launcher.ref);
 		}
-		else if (entity.Cast("tf_point_weapon_mimic")) // Do a cast instead...
-			return view_as<FProjectileLauncher>(entity.ref);
-		else
-			return view_as<FProjectileLauncher>(0); // Invalid object if cast fails
+		else // Otherwise don't create anything
+		{
+			PrintToChatAll("Cast Failed");
+			return view_as<FProjectileLauncher>(0);
+		}
 	}
 
 	// Type of weapon this launcher will mimic
@@ -79,6 +97,16 @@ methodmap FProjectileLauncher
 		public get()
 		{
 			return view_as<EWeaponType>(this.GetObject().GetProp(Prop_Data, "m_nWeaponType"));
+		}
+	}
+
+	// Sets both min and max speed on this launcher
+	property float BaseSpeed
+	{
+		public set(float value)
+		{
+			this.GetObject().SetPropFloat(Prop_Data, "m_flSpeedMax", value);
+			this.GetObject().SetPropFloat(Prop_Data, "m_flSpeedMin", value);
 		}
 	}
 
@@ -155,6 +183,11 @@ methodmap FProjectileLauncher
 		return entity;
 	}
 
+	public int Get()
+	{
+		return this.GetObject().Get();
+	}
+
 	public bool Valid()
 	{
 		return this.GetObject().Valid();
@@ -184,32 +217,48 @@ methodmap FProjectileLauncher
 	}
 }
 
-/**
+/** Does not work - can't seem to get projectiles fire by a mimic
  * Checks if a projectile was launched by a projectile launcher
  * 
  * @param entity     Projectile to test
+ * @param lancher	 Buffer to store launcher if found
  * @return           True if the projectile was launched by a projectile launcher. False if no launcher or invalid entity type
- */
-stock bool ProjectileLaunched(FObject entity)
+ 
+stock bool ProjectileLaunched(FObject entity, FProjectileLauncher& launcher)
 {
 	if (entity.Cast("tf_projectile_"))
 	{
-		FProjectileLauncher launcher = FProjectileLauncher(true, entity.GetPropEnt(Prop_Send, "m_hLauncher"));
+		FObject launcherEnt;
+		launcherEnt = entity.GetPropEnt(Prop_Send, "m_hOwnerEntity");
+
+		char classname[64];
+		launcherEnt.GetClassname(classname, sizeof classname);
+		PrintToChatAll("[CHECK LAUNCHER] Launcher Index = %d | %s\n------------", launcher.Get(), classname);
+
+		launcher = FProjectileLauncher(launcherEnt, true);
 
 		return launcher.Valid();
 	}
 
 	return false;
 }
+*/
 
-/**
- * Sets team and owner properties on this projectile. Mainly used for projectiles launched from tf_point_weapon_mimic
+/** Does not work - can't seem to get projectiles fire by a mimic
+ * Sets team and owner properties on projectiles launched by a tf_point_weapon_mimic
  * 
  * @param projectile     Spawned projectile
- * @param owner          Owning client
- */
-stock void SetProjectileProperties(FObject projectile, FClient owner)
+ *
+stock void SetProjectileProperties(FObject projectile, FProjectileLauncher launcher)
 {
-	projectile.SetOwner(owner.GetObject());
-	projectile.SetProp(Prop_Send, "m_iTeamNum", owner.GetTeam());
+	// Check if we have an owner
+	FClient owner;
+	owner = CastToClient(launcher.GetObject().GetOwner());
+
+	if (owner.Valid())
+	{
+		projectile.SetOwner(owner.GetObject());
+		projectile.SetProp(Prop_Send, "m_iTeamNum", owner.GetTeam());
+	}
 }
+*/
