@@ -1,5 +1,11 @@
 #include "ilib/entity.inc"
 
+#if defined _ilib_shared_included
+ #endinput
+#endif
+#define _ilib_shared_included
+
+
 methodmap AObject
 {
     public AObject(int entity)
