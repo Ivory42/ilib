@@ -8,12 +8,12 @@
 
 methodmap AObject
 {
-    public AObject(int entity)
-    {
+	public AObject(int entity)
+	{
         return view_as<AObject>(ConstructObject(entity).ref);
     }
 
-    // Returns the object reference
+	// Returns the object reference
 	public FObject GetObject()
 	{
 		FObject entity;
