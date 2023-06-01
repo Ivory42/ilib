@@ -1,16 +1,11 @@
 #include <tf2_stocks>
-#include "ilib/entity.inc"
+#include "ilib/objects/shared.inc"
 #include "ilib/vector.inc"
 
 #if defined _ilib_rocket_included
  #endinput
 #endif
 #define _ilib_rocket_included
-
-/*
-* Optional struct for quickly creating rockets
-* These rockets are no different than just spawning a tf_projectile_rocket or equivalent; this just acts as a quicker way to create them
-*/
 
 enum ERocketType
 {
@@ -19,67 +14,118 @@ enum ERocketType
 	Rocket_Sentry   // Sentry salvo
 }
 
-enum struct FRocket
+/*
+* Map for handling rockets
+*/
+methodmap ARocket < AObject
 {
-	FObject Reference; // Entity object reference of this rocket
-
-	float Speed; // Speed of this rocket when fired
-
-	// Returns the object reference of this rocket
-	FObject GetObject()
+	/*
+	* Creates a rocket projectile
+	*
+	* @param type		ERocketType that determines what this rocket should be
+	*
+	* @return 			Deferred rocket object of the given type.
+	*/
+	public ARocket(ERocketType type = Rocket_Default)
 	{
-		return this.Reference;
-	}
+		FObject rocket;
+		char classname[64];
 
-	// Returns the entity index this rocket references
-	int Get()
-	{
-		return this.GetObject().Get();
-	}
-
-	// Checks if the object reference is valid
-	bool Valid()
-	{
-		return this.GetObject().Valid();
-	}
-
-	// Checks if this is a valid rocket
-	bool IsRocket()
-	{
-		if (this.Valid())
+		switch (type)
 		{
-			if (this.GetObject().Cast("tf_projectile_rocket"))
-				return true;
-			
-			if (this.GetObject().Cast("tf_projectile_energy_ball"))
-				return true;
-
-			if (this.GetObject().Cast("tf_projectile_sentryrocket"))
-				return true;
+			case Rocket_Default: FormatEx(classname, sizeof classname, "tf_projectile_rocket");
+			case Rocket_Plasma:	FormatEx(classname, sizeof classname, "tf_projectile_energy_ball");
+			case Rocket_Sentry:	FormatEx(classname, sizeof classname, "tf_projectile_sentryrocket");
 		}
 
-		return false;
+		rocket = CreateObjectDeferred(classname);
+
+		return view_as<ARocket>(rocket.ref);
+	}
+
+	// Damage this rocket will deal
+	property float Damage
+	{
+		public set(float value)
+		{
+			if (this.Valid())
+			{
+				int offset = FindSendPropInfo(this.GetRocketType(), "m_iDeflected") + 4;
+				SetEntDataFloat(this.Get(), offset, value);
+			}
+		}
+		public get()
+		{
+			if (this.Valid())
+			{
+				int offset = FindSendPropInfo(this.GetRocketType(), "m_iDeflected") + 4;
+				return GetEntDataFloat(this.Get(), offset);
+			}
+		}
+	}
+
+	// Used to get the rocket's speed from its velocity. Cannot be set, use ARocket::FireProjectile() to set velocity
+	property float Speed
+	{
+		public get()
+		{
+			FVector vel;
+			this.GetObject().GetPropVector(Prop_Data, "m_vecVelocity", vel);
+
+			return vel.Length();
+		}
+	}
+
+	// If an energy ball, whether or not it is charged
+	property bool Charged
+	{
+		public set(bool value)
+		{
+			if (this.Cast("tf_projectile_energy_ball"))
+				this.GetObject().SetProp(Prop_Send, "m_bChargedShot", view_as<int>(value));
+		}
+		public get()
+		{
+			if (this.Cast("tf_projectile_energy_ball"))
+				return view_as<bool>(this.GetObject().GetProp(Prop_Send, "m_bChargedShot"));
+			else
+				return false;
+		}
+	}
+
+	// Whether or not this rocket is a critical rocket
+	property bool Critical
+	{
+		public set(bool value)
+		{
+			this.GetObject().SetProp(Prop_Send, "m_bCritical", view_as<int>(value));
+		}
+		public get()
+		{
+			return view_as<bool>(this.GetObject().GetProp(Prop_Send, "m_bCritical"));
+		}
 	}
 
 	/*
-	* Fires this projectile based on its set speed in the given direction
+	* Fires this projectile in the given direction. This can be used at any time during the projectile's life
 	*
 	* @param direction		Direction this projectile should fire at, as an angle
+	* @param speed			Speed at which this rocket will fire at
 	*/
-	void FireProjectile(FRotator direction)
+	public void FireProjectile(FRotator direction, float speed)
 	{
-		if (this.IsRocket())
+		if (this.Valid())
 		{
 			FVector uDir;
 			uDir = direction.GetForwardVector(); // Get the unit direction
-			uDir.Scale(this.Speed);
+			uDir.Scale(speed);
 
 			this.GetObject().SetVelocityRotation(direction, uDir); // Fire the rocket
 		}
 	}
 
 	// Returns this rocket's networked class
-	char[] GetRocketType()
+	public char[] GetRocketType()
 	{
 		char classname[64];
 		if (this.Valid())
@@ -87,108 +133,25 @@ enum struct FRocket
 
 		return classname;
 	}
-
-	/*
-	* Sets the damage of this rocket
-	*
-	* @param damage		Damage this rocket should deal
-	*/
-	void SetDamage(float damage)
-	{
-		if (this.IsRocket())
-			SetEntDataFloat(this.Get(), FindSendPropInfo(this.GetRocketType(), "m_iDeflected") + 4, damage);
-	}
 }
 
 /*
-* Quickly spawns a rocket with the given properties. If you need to set keyvalues or any other properties, use CreateRocketDeferred() instead.
-* Spawns a stock rocket by default
-*
-* @param angle		Rotation this rocket should fire at
-* @param type		The type of rocket this should spawn as
-* @param speed		The speed this rocket should travel at
-* @param damage		The initial damage for this rocket
-*/
-stock FRocket CreateRocket(FRotator angle, ERocketType type = Rocket_Default, float speed = 1100.0, float damage = 90.0)
-{
-	FRocket rocket;
-	char classname[64];
-
-	switch (type)
-	{
-		case Rocket_Default: FormatEx(classname, sizeof classname, "tf_projectile_rocket");
-		case Rocket_Plasma:	FormatEx(classname, sizeof classname, "tf_projectile_energy_ball");
-		case Rocket_Sentry:	FormatEx(classname, sizeof classname, "tf_projectile_sentryrocket");
-	}
-	rocket.Reference = CreateObject(classname);
-	rocket.Speed = speed;
-	rocket.SetDamage(damage);
-
-	rocket.FireProjectile(angle); // Fire the rocket
-	
-	return rocket;
-}
-
-/*
-* Creates a rocket object but does not spawn it. Call FinishSpawn() on the object's reference when ready to spawn
-*
-* @param type		The type of rocket this should spawn as
-* @param speed		The speed this rocket should travel at
-* @param damage		The damage this rocket should deal
-*/
-stock FRocket CreateRocketDeferred(ERocketType type = Rocket_Default, float speed = 1100.0, float damage = 90.0)
-{
-	FRocket rocket;
-	char classname[64];
-
-	switch (type)
-	{
-		case Rocket_Default: FormatEx(classname, sizeof classname, "tf_projectile_rocket");
-		case Rocket_Plasma:	FormatEx(classname, sizeof classname, "tf_projectile_energy_ball");
-		case Rocket_Sentry:	FormatEx(classname, sizeof classname, "tf_projectile_sentryrocket");
-	}
-
-	rocket.Reference = CreateObjectDeferred(classname);
-	rocket.Speed = speed;
-	rocket.SetDamage(damage);
-	
-	return rocket;
-}
-
-/*
-* Returns an FRocket if the given object is a rocket
+* Returns an ARocket if the given object is a rocket
 *
 * @param entity		Entity to test
 */
-stock FRocket CastToRocket(FObject entity)
+stock ARocket CastToRocket(FObject entity)
 {
-	FRocket rocket;
+	ARocket rocket;
 
 	// Basically the same as FRocket::Valid(), we do this so we don't have to set the reference of the rocket until after we validate that it is a rocket.
 	// Otherwise this entity will still be set as the rocket's reference, regardless, making this cast pointless
 	if (entity.Cast("tf_projectile_rocket"))
-		rocket.Reference = entity;
+		rocket = view_as<ARocket>(entity.ref);
 	else if (entity.Cast("tf_projectile_energy_ball"))
-		rocket.Reference = entity;
+		rocket = view_as<ARocket>(entity.ref);
 	else if (entity.Cast("tf_projectile_sentryrocket"))
-		rocket.Reference = entity;
-
-	GetRocketSpeed(rocket);
+		rocket = view_as<ARocket>(entity.ref);
 
 	return rocket;
-}
-
-/*
-* Gets the speed of the rocket based on the velocity and sets FRocket::Speed appropriately
-*
-* @param rocket		Rocket struct to populate
-*/
-stock void GetRocketSpeed(FRocket rocket)
-{
-	FVector vel;
-	rocket.GetObject().GetPropVector(Prop_Data, "m_vecVelocity", vel);
-
-	float speed = vel.Length();
-
-	rocket.Speed = speed;
 }

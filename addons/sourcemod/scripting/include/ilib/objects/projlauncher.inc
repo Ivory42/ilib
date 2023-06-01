@@ -18,12 +18,10 @@ enum EWeaponType
 
 /*
 * Map used to wrap around tf_point_weapon_mimic
-* Can't seem to get projectiles fired by this entity so not as useful as it could be. It could still be used as some sort of map hazard
-* or for anything that doesn't need to have a player as the owner
 * 
 */
 
-methodmap FProjectileLauncher
+methodmap AProjectileLauncher < AObject
 {
 	/*
 	* Creates a projectile launcher with the given type and properties
@@ -31,17 +29,17 @@ methodmap FProjectileLauncher
 	* @param entity			If casting, test this entity
 	* @param cast			Use this constructor as a cast
 	* 
-	* @return Wrapper for a deferred FObject. Use FinishSpawn() to activate if not casting
+	* @return Wrapper for a deferred FObject. Use FinishSpawn() to activate
 	*/
-	public FProjectileLauncher(FObject entity = {}, bool cast = false)
+	public AProjectileLauncher(FObject entity = {}, bool cast = false)
 	{
 		// Cast to the given entity first
 		if (entity.Valid() && cast)
 		{
 			if (entity.Cast("tf_point_weapon_mimic"))
-				return view_as<FProjectileLauncher>(entity.ref);
-			else 
-				return view_as<FProjectileLauncher>(0);
+				return view_as<AProjectileLauncher>(entity.ref);
+			else return view_as<AProjectileLauncher>(0);
+
 		}
 
 		// If we are not given an entity and we aren't casting, create a new launcher
@@ -70,11 +68,11 @@ methodmap FProjectileLauncher
 			// Set the scale
 			launcher.SetPropFloat(Prop_Data, "m_flModelScale", scale);
 
-			return view_as<FProjectileLauncher>(launcher.ref);
+			return view_as<AProjectileLauncher>(launcher.ref);
 		}
 		else // Otherwise don't create anything
 		{
-			return view_as<FProjectileLauncher>(0);
+			return view_as<AProjectileLauncher>(0);
 		}
 	}
 
@@ -165,24 +163,6 @@ methodmap FProjectileLauncher
 			return this.GetObject().GetPropFloat(Prop_Data, "m_flSpreadAngle");
 		}
 	}
-	
-	public FObject GetObject()
-	{
-		FObject entity;
-		entity.ref = view_as<int>(this);
-
-		return entity;
-	}
-
-	public int Get()
-	{
-		return this.GetObject().Get();
-	}
-
-	public bool Valid()
-	{
-		return this.GetObject().Valid();
-	}
 
 	public void Fire()
 	{
@@ -212,7 +192,7 @@ methodmap FProjectileLauncher
  * Checks if a projectile was launched by a projectile launcher
  * 
  * @param entity     Projectile to test
- * @param lancher	 Buffer to store launcher if found
+ * @param launcher	 Buffer to store launcher if found
  * @return           True if the projectile was launched by a projectile launcher. False if no launcher or invalid entity type
  
 stock bool ProjectileLaunched(FObject entity, FProjectileLauncher& launcher)

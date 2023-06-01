@@ -1,5 +1,8 @@
 #include <tf2attributes> // required for weapons module
 
+// Required for methodmap objects
+#include "ilib/objects/shared.inc"
+
 #include "ilib/objects/rocket.inc"
 #include "ilib/objects/particle.inc"
 #include "ilib/objects/weapon.inc"
