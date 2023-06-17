@@ -15,6 +15,12 @@ enum struct FTimer
 	// Timer value to use for this timer
 	float Time;
 
+	// Initial timer for this timer's first loop
+	float InitialTime;
+
+	// Whether or not this timer is set to be paused initially
+	bool InitiallyPaused;
+
 	// Whether or not this timer is looping
 	bool Looping;
 	
@@ -30,22 +36,36 @@ enum struct FTimer
 	* @param time			Duration for this timer
 	* @param startPaused	(default: true) Whether or not this timer should start paused
 	* @param loop 			(default: false) Should this timer loop
+	* @param initialDelay	(default: 0.0) Initial delay passed to the timer
 	*/
-	void Set(float time, bool startPaused = true, bool loop = false)
+	void Set(float time, bool startPaused = true, bool loop = false, float initialDelay = 0.0)
 	{
 		this.Time = time;
+		this.InitialTime = time + initialDelay;
 		this.Looping = loop;
 		this.PausedValue = time;
 		this.Paused = startPaused;
+		this.InitiallyPaused = startPaused;
 		
 		if (!this.Paused) // Timer is active
-			this.NextTime = GetGameTime() + this.Time;
+			this.NextTime = GetGameTime() + this.InitialTime;
+	}
+
+	// If this timer is paused when created, this can be used to start the timer with its initial timer delay
+	void StartTimer()
+	{
+		if (this.InitiallyPaused)
+		{
+			this.NextTime = GetGameTime() + this.InitialTime;
+			this.Paused = false;
+			this.InitiallyPaused = false;
+		}
 	}
 	
-	// Starts or resumes this timer
+	// Resumes this timer if it was started and paused
 	void Continue()
 	{
-		if (this.Paused)
+		if (this.Paused && !this.InitiallyPaused)
 		{
 			this.NextTime = GetGameTime() + this.PausedValue;
 			this.Paused = false;
@@ -118,14 +138,15 @@ enum struct FTimer
 * @param duration 	Duration for this timer
 * @param paused		Should this timer start paused
 * @param loop 		Should this timer loop
+* @param initialDelay	(default: 0.0) Initial delay passed to the timer
 *
 * @return - FTimer containing this timer's information
 */
 
-stock FTimer ConstructTimer(float duration, bool paused = true, bool loop = false)
+stock FTimer ConstructTimer(float duration, bool paused = true, bool loop = false, float initialDelay = 0.0)
 {
 	FTimer timer;
-	timer.Set(duration, paused, loop);
+	timer.Set(duration, paused, loop, initialDelay);
 
 	return timer;
 }
