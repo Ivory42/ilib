@@ -12,6 +12,144 @@
 #endif
 #define _ilib_included
 
+methodmap SMathStatics
+{
+	// Clamps an integer value between min and max
+	public static int ClampInt(int value, int min, int max)
+	{
+		return (value < min) ? min : (value < max) ? value : max;
+	}
+	
+	// Clamps a float value between min and max
+	public static float ClampFloat(float value, float min, float max)
+	{
+		return (value < min) ? min : (value < max) ? value : max;
+	}
+	
+	// From UE5 FMath::RInterpConstantTo
+	/*
+	* Interpolates from a starting angle to the given target angle in a smooth transition
+	*
+	* @param current		Starting angle
+	* @param target			Angle to interpolate to
+	* @param delta			Length of distance between starting and target angles (from 0.0 to 1.0)
+	* @param speed			How fast the interpolation should be (value of 0.0 = no interpolation).
+	*
+	* @return 				Angle between the current and target rotators based on the delta given		
+	*/
+	public static FRotator RInterpTo(FRotator current, FRotator target, float delta, float speed)
+	{
+		// if DeltaTime is 0, do not perform any interpolation (Location was already calculated for that frame)
+		if (delta == 0.0 || current.IsEqual(target))
+			return current;
+
+		// If no interp speed, jump to target value
+		if (speed <= 0.0)
+		{
+			return target;
+		}
+
+		float deltaSpeed = speed * delta;
+		
+		FRotator deltaRotation;
+		deltaRotation = SubtractRotators(target, current).GetNormalized()
+
+		FRotator result;
+		result = current;
+
+		result.pitch += SMathStatics.ClampFloat(deltaRotation.pitch, -deltaSpeed, deltaSpeed);
+		result.yaw += SMathStatics.ClampFloat(deltaRotation.yaw, -deltaSpeed, deltaSpeed);
+		result.roll += SMathStatics.ClampFloat(deltaRotation.roll, -deltaSpeed, deltaSpeed);
+		return result.GetNormalized();
+	}
+	
+	/*
+	* Gets the rotation between two locations in world space
+	*
+	* @param origin Origin position
+	* @param destination Destination position
+	*
+	* @return FRotator containing the world angles from the origin to the destination
+	*/
+	public static FRotator RCalcAngle(FVector origin, FVector destination)
+	{
+		FRotator angles;
+		FVector buffer;
+		Vector_Subtract(destination, origin, buffer);
+
+		Vector_GetAngles(buffer, angles);
+
+		return angles;
+	}
+	
+	/*
+	* Interpolates between two values making a smooth transition
+	*
+	* @param current 	Starting value
+	* @param target 	Target value
+	* @param time 		Time interval for interpolation speed
+	*
+	* @return 			Interpolated value between the current and target
+	*/
+	public static float FInterpTo(float current, float target, float time)
+	{
+		return (1.0 - time) * current + time * target;
+	}
+
+	/*
+	* Gets an angle in degrees between two rotators
+	* 
+	* @param origin 	Origin angle
+	*
+	* @param target 	Target angle
+	*
+	* @return 			Float value of angle in degrees 
+	*/
+	public static float FGetAngle(FRotator origin, FRotator target)
+	{
+		FVector aim, ang;
+
+		aim = origin.GetForwardVector();
+		ang = target.GetForwardVector();
+
+		return RadToDeg(ArcCosine(Vector_DotProduct(aim, ang) / aim.Length(true)));
+	}
+
+	/*
+	* Offsets the input vector by the given offset vector based on the given angle
+	*
+	* @param input		Original vector
+	*
+	* @param angle		Relative angle to use for offset
+	*
+	* @param offset		Vector to use as an offset
+	*
+	* @return			FVector offset from the given input vector relative to the given angle
+	*/
+
+	public static FVector VOffsetVector(FVector input, FRotator angle, FVector offset)
+	{
+		FVector result;
+		result = input;
+
+		FVector interimVec;
+		interimVec = angle.GetForwardVector();
+		interimVec.Scale(offset.x);
+		Vector_Add(interimVec, result, result);
+
+		interimVec = angle.GetRightVector();
+		interimVec.Negate();
+		interimVec.Scale(offset.y);
+		Vector_Add(interimVec, result, result);
+
+		interimVec = angle.GetUpVector();
+		interimVec.Scale(offset.z);
+		Vector_Add(interimVec, result, result);
+
+		return result;
+	}
+}
+
 
 /*
 * Creates an FClient struct from a given object reference
@@ -27,92 +165,6 @@ stock FClient CastToClient(FObject entity)
 	client.reference = entity;
 
 	return client;
-}
-
-/*
-* Interpolates between two values making a smooth transition
-*
-* @param current 	Starting value
-* @param target 	Target value
-* @param time 		Time interval for interpolation speed
-*
-* @return 			Interpolated value between the current and target
-*/
-stock float InterpolateFloat(float current, float target, float time)
-{
-	return (1.0 - time) * current + time * target;
-}
-
-/*
-* Gets an angle in degrees between two rotators
-* 
-* @param origin 	Origin angle
-*
-* @param target 	Target angle
-*
-* @return 			Float value of angle in degrees 
-*/
-stock float GetAngle(FRotator origin, FRotator target)
-{
-	FVector aim, ang;
-
-	aim = origin.GetForwardVector();
-	ang = target.GetForwardVector();
-
-	return RadToDeg(ArcCosine(Vector_DotProduct(aim, ang) / aim.Length(true)));
-}
-
-/*
-* Offsets the input vector by the given offset vector based on the given angle
-*
-* @param input		Original vector
-*
-* @param angle		Relative angle to use for offset
-*
-* @param offset		Vector to use as an offset
-*
-* @return			FVector offset from the given input vector relative to the given angle
-*/
-
-stock FVector OffsetVector(FVector input, FRotator angle, FVector offset)
-{
-	FVector result;
-	result = input;
-
-	FVector interimVec;
-	interimVec = angle.GetForwardVector();
-	interimVec.Scale(offset.x);
-	Vector_Add(interimVec, result, result);
-
-	interimVec = angle.GetRightVector();
-	interimVec.Negate();
-	interimVec.Scale(offset.y);
-	Vector_Add(interimVec, result, result);
-
-	interimVec = angle.GetUpVector();
-	interimVec.Scale(offset.z);
-	Vector_Add(interimVec, result, result);
-
-	return result;
-}
-
-/*
-* Gets the rotation between two locations in world space
-*
-* @param origin Origin position
-* @param destination Destination position
-*
-* @return FRotator containing the world angles from the origin to the destination
-*/
-stock FRotator CalcAngle(FVector origin, FVector destination)
-{
-	FRotator angles;
-	FVector buffer;
-	Vector_Subtract(destination, origin, buffer);
-
-	Vector_GetAngles(buffer, angles);
-
-	return angles;
 }
 
 // Emits the given sound to all players
@@ -212,49 +264,4 @@ stock void WriteGameText(FClient client, const char[] message, const char[] icon
 	BfWriteString(GlobalText, icon);
 	BfWriteByte(GlobalText, client.GetTeam());
 	EndMessage();
-}
-
-// Interpolating angles - The following has been ported from UE5's FMath class
-
-// From UE5 FMath::RInterpConstantTo
-/*
-* Interpolates from a starting angle to the given target angle in a smooth transition
-*
-* @param current		Starting angle
-* @param target			Angle to interpolate to
-* @param delta			Length of distance between starting and target angles (from 0.0 to 1.0)
-* @param speed			How fast the interpolation should be (value of 0.0 = no interpolation).
-*
-* @return 				Angle between the current and target rotators based on the delta given		
-*/
-stock FRotator InterpRotation(FRotator current, FRotator target, float delta, float speed)
-{
-	// if DeltaTime is 0, do not perform any interpolation (Location was already calculated for that frame)
-	if (delta == 0.0 || current.IsEqual(target))
-		return current;
-
-	// If no interp speed, jump to target value
-	if (speed <= 0.0)
-	{
-		return target;
-	}
-
-	float deltaSpeed = speed * delta;
-	
-	FRotator deltaRotation;
-	deltaRotation = SubtractRotators(target, current).GetNormalized()
-
-	FRotator result;
-	result = current;
-
-	result.pitch += ClampFloat(deltaRotation.pitch, -deltaSpeed, deltaSpeed);
-	result.yaw += ClampFloat(deltaRotation.yaw, -deltaSpeed, deltaSpeed);
-	result.roll += ClampFloat(deltaRotation.roll, -deltaSpeed, deltaSpeed);
-	return result.GetNormalized();
-}
-
-// Clamps the float value between min and max
-stock float ClampFloat(const float value, const float min, const float max)
-{
-	return (value < min) ? min : (value < max) ? value : max;
 }

@@ -33,6 +33,22 @@ enum struct FClient
 	{
 		return this.reference.Get();
 	}
+	
+	// Gets the EntRef of this client
+	int GetReference()
+	{
+		return this.reference.ref;
+	}
+	
+	/*
+	* Sets EntRef of this client
+	*
+	* @param clientRef EntRef of the client
+	*/
+	void SetReference(int clientRef)
+	{
+		this.reference.ref = clientRef;
+	}
 
 	// Increments the referenced index by one
 	void Next()
