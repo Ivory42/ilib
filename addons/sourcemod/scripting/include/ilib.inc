@@ -12,7 +12,7 @@
 #endif
 #define _ilib_included
 
-methodmap SMathStatics
+methodmap SMath
 {
 	// Clamps an integer value between min and max
 	public static int ClampInt(int value, int min, int max)
@@ -57,9 +57,9 @@ methodmap SMathStatics
 		FRotator result;
 		result = current;
 
-		result.pitch += SMathStatics.ClampFloat(deltaRotation.pitch, -deltaSpeed, deltaSpeed);
-		result.yaw += SMathStatics.ClampFloat(deltaRotation.yaw, -deltaSpeed, deltaSpeed);
-		result.roll += SMathStatics.ClampFloat(deltaRotation.roll, -deltaSpeed, deltaSpeed);
+		result.pitch += SMath.ClampFloat(deltaRotation.pitch, -deltaSpeed, deltaSpeed);
+		result.yaw += SMath.ClampFloat(deltaRotation.yaw, -deltaSpeed, deltaSpeed);
+		result.roll += SMath.ClampFloat(deltaRotation.roll, -deltaSpeed, deltaSpeed);
 		return result.GetNormalized();
 	}
 	

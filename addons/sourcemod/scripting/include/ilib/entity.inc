@@ -37,6 +37,12 @@ enum struct FObject
 		return EntRefToEntIndex(this.ref);
 	}
 
+	// Returns the entity reference of this object
+	int GetReference()
+	{
+		return this.ref;
+	}
+
 	// Returns true if the reference this object points to is still valid
 	bool Valid()
 	{

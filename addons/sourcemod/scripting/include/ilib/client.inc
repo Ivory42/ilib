@@ -37,7 +37,7 @@ enum struct FClient
 	// Gets the EntRef of this client
 	int GetReference()
 	{
-		return this.reference.ref;
+		return this.reference.GetReference();
 	}
 	
 	/*

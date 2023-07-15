@@ -46,6 +46,30 @@ methodmap AObject
 		this.GetObject().Kill();
 	}
 
+	// Sets the given keyvalue on this object
+	public void SetKeyValue(const char[] key, char[] value)
+	{
+		this.GetObject().SetKeyValue(key, value);
+	}
+
+	// Sets the given keyvalue on this object as an integer
+	public void SetKeyValueInt(const char[] key, int value)
+	{
+		this.GetObject().SetKeyValueInt(key, value);
+	}
+
+	// Sets the given keyvalue on this object as a float
+	public void SetKeyValueFloat(const char[] key, float value)
+	{
+		this.GetObject().SetKeyValueFloat(key, value);
+	}
+
+	// Sets the given keyvalue on this object as a vector
+	public void SetKeyValueVector(const char[] key, FVector value)
+	{
+		this.GetObject().SetKeyValueVector(key, value);
+	}
+
 	// Sets the owner of this object reference
 	public void SetOwner(FObject value)
 	{
@@ -79,4 +103,11 @@ methodmap AObject
 
 		return classname;
 	}
+
+	// Wrapper for FinishSpawn() for AObject types
+	public static void SpawnObject(AObject entity, FTransform spawn)
+	{
+		FinishSpawn(entity.GetObject(), spawn);
+	}
 }
+
