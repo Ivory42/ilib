@@ -151,6 +151,12 @@ enum struct FObject
 			GetEntPropString(this.Get(), Prop_Data, "m_iName", targetname, size);
 	}
 
+	void SetTargetName(char[] targetname)
+	{
+		if (this.Valid())
+			SetEntPropString(this.Get(), Prop_Data, "m_iName", targetname);
+	}
+
 	/*
 	* Wrapper for AcceptEntityInput()
 	*/
