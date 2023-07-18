@@ -5,7 +5,7 @@
 #if defined _ilib_botcontroller_included
  #endinput
 #endif
-#define _ilib_bontcontroller_included
+#define _ilib_botcontroller_included
 
 methodmap ABotController < AObject
 {
