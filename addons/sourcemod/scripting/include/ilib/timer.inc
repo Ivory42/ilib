@@ -1,152 +1,330 @@
-#if defined _ilib_timer_included
+#include <sdktools>
+#include "ilib/vector.inc"
+#include "ilib/trace_wrapper.inc"
+#include "ilib/colors.inc"
+#include "ilib/timer.inc"
+#include "ilib/tempent.inc"
+#include "ilib/entity.inc"
+#include "ilib/client.inc"
+
+#if defined _ilib_included
  #endinput
 #endif
-#define _ilib_timer_included
+#define _ilib_included
 
-/*
-* Struct used to create pseudo timers
-* Used with GetGameTime() to determine if the timer has expired
-*/
-enum struct FTimer
+methodmap FMath
 {
-	// Game time when this timer will expire next
-	float NextTime;
-
-	// Timer value to use for this timer
-	float Time;
-
-	// Initial timer for this timer's first loop
-	float InitialTime;
-
-	// Whether or not this timer is set to be paused initially
-	bool InitiallyPaused;
-
-	// Whether or not this timer is looping
-	bool Looping;
-	
-	// Stored timer value for when timer is paused
-	float PausedValue;
-	
-	// Whether or not this timer is paused
-	bool Paused;
-
-	/*
-	* Sets the timer value but does not activate the timer
-	*
-	* @param time			Duration for this timer
-	* @param startPaused	(default: true) Whether or not this timer should start paused
-	* @param loop 			(default: false) Should this timer loop
-	* @param initialDelay	(default: 0.0) Initial delay passed to the timer
-	*/
-	void Set(float time, bool startPaused = true, bool loop = false, float initialDelay = 0.0)
+	// Clamps an integer value between min and max
+	public static int ClampInt(int value, int min, int max)
 	{
-		this.Time = time;
-		this.InitialTime = time + initialDelay;
-		this.Looping = loop;
-		this.PausedValue = time;
-		this.Paused = startPaused;
-		this.InitiallyPaused = startPaused;
+		return (value < min) ? min : (value < max) ? value : max;
+	}
+	
+	// Clamps a float value between min and max
+	public static float ClampFloat(float value, float min, float max)
+	{
+		return (value < min) ? min : (value < max) ? value : max;
+	}
+	
+	// From UE5 FMath::RInterpConstantTo
+	/*
+	* Interpolates from a starting angle to the given target angle in a smooth transition
+	*
+	* @param current		Starting angle
+	* @param target			Angle to interpolate to
+	* @param delta			Length of distance between starting and target angles (from 0.0 to 1.0)
+	* @param speed			How fast the interpolation should be (value of 0.0 = no interpolation).
+	*
+	* @return 				Angle between the current and target rotators based on the delta given		
+	*/
+	public static FRotator InterpRotatorTo(FRotator current, FRotator target, float delta, float speed)
+	{
+		// if DeltaTime is 0, do not perform any interpolation (Location was already calculated for that frame)
+		if (delta == 0.0 || current.IsEqual(target))
+			return current;
+
+		// If no interp speed, jump to target value
+		if (speed <= 0.0)
+		{
+			return target;
+		}
+
+		float deltaSpeed = speed * delta;
 		
-		if (!this.Paused) // Timer is active
-			this.NextTime = GetGameTime() + this.InitialTime;
-	}
+		FRotator deltaRotation;
+		deltaRotation = SubtractRotators(target, current).GetNormalized()
 
-	// If this timer is paused when created, this can be used to start the timer with its initial timer delay
-	void StartTimer()
-	{
-		if (this.InitiallyPaused)
-		{
-			this.NextTime = GetGameTime() + this.InitialTime;
-			this.Paused = false;
-			this.InitiallyPaused = false;
-		}
+		FRotator result;
+		result = current;
+
+		result.pitch += FMath.ClampFloat(deltaRotation.pitch, -deltaSpeed, deltaSpeed);
+		result.yaw += FMath.ClampFloat(deltaRotation.yaw, -deltaSpeed, deltaSpeed);
+		result.roll += FMath.ClampFloat(deltaRotation.roll, -deltaSpeed, deltaSpeed);
+		return result.GetNormalized();
 	}
 	
-	// Resumes this timer if it was started and paused
-	void Continue()
-	{
-		if (this.Paused && !this.InitiallyPaused)
-		{
-			this.NextTime = GetGameTime() + this.PausedValue;
-			this.Paused = false;
-		}
-	}
-
-	// Clears and deactivates this timer
-	void Clear()
-	{
-		this.NextTime = -1.0;
-		this.Looping = false;
-		this.PausedValue = -1.0;
-	}
-	
-	// Returns the timr remaining on this timer in seconds, or 0 if the timer is not active
-	float GetTimeRemaining()
-	{
-		float result = this.NextTime - GetGameTime();
-		if (result > 0.0)
-			return result;
-		else
-			return 0.0;
-	}
-	
-	// Pauses this timer until FTimer::Continue() is called
-	void Pause()
-	{
-		this.Paused = true;
-		this.PausedValue = this.GetTimeRemaining();
-	}
-
-	// Returns the full duration of this timer
-	float GetTimerDuration()
-	{
-		return this.Time;
-	}
-
 	/*
-	* Loops this timer with the last given time input
+	* Gets the rotation between two locations in world space
 	*
-	* Note - This will unpause the timer if it is paused
+	* @param origin Origin position
+	* @param destination Destination position
+	*
+	* @return FRotator containing the world angles from the origin to the destination
 	*/
-	void Loop()
+	public static FRotator CalcRotator(FVector origin, FVector destination)
 	{
-		this.NextTime = GetGameTime() + this.Time;
-		this.Paused = false;
+		FRotator angles;
+		FVector buffer;
+		Vector_Subtract(destination, origin, buffer);
+
+		Vector_GetAngles(buffer, angles);
+
+		return angles;
+	}
+	
+	/*
+	* Interpolates between two values making a smooth transition
+	*
+	* @param current 	Starting value
+	* @param target 	Target value
+	* @param time 		Time interval for interpolation speed
+	*
+	* @return 			Interpolated value between the current and target
+	*/
+	public static float InterpFloatTo(float current, float target, float time)
+	{
+		return (1.0 - time) * current + time * target;
 	}
 
 	/*
-	* Returns whether or not this timer has expired
-	* If the timer is marked to loop, it will automatically reset when this is called. Otherwise FTimer::Loop() can be used to restart the timer
+	* Gets an angle in degrees between two rotators
+	* 
+	* @param origin 	Origin angle
+	*
+	* @param target 	Target angle
+	*
+	* @return 			Float value of angle in degrees 
 	*/
-	bool Expired()
+	public static float GetAngle(FRotator origin, FRotator target)
 	{
-		if (this.Paused) // Do nothing if timer is paused
-			return false;
-			
-		bool result = (this.NextTime <= GetGameTime() && this.NextTime != -1.0);
+		FVector aim, ang;
 
-		if (this.Looping && result)
-			this.NextTime = GetGameTime() + this.Time;
+		aim = origin.GetForwardVector();
+		ang = target.GetForwardVector();
+
+		return RadToDeg(ArcCosine(Vector_DotProduct(aim, ang) / aim.Length(true)));
+	}
+
+	/*
+	* Offsets the input vector by the given offset vector based on the given angle
+	*
+	* @param input		Original vector
+	*
+	* @param angle		Relative angle to use for offset
+	*
+	* @param offset		Vector to use as an offset
+	*
+	* @return			FVector offset from the given input vector relative to the given angle
+	*/
+
+	public static FVector OffsetVector(FVector input, FRotator angle, FVector offset)
+	{
+		FVector result;
+		result = input;
+
+		FVector interimVec;
+		interimVec = angle.GetForwardVector();
+		interimVec.Scale(offset.x);
+		Vector_Add(interimVec, result, result);
+
+		interimVec = angle.GetRightVector();
+		interimVec.Negate();
+		interimVec.Scale(offset.y);
+		Vector_Add(interimVec, result, result);
+
+		interimVec = angle.GetUpVector();
+		interimVec.Scale(offset.z);
+		Vector_Add(interimVec, result, result);
 
 		return result;
 	}
 }
 
+methodmap FGameplayStatics
+{
+	/*
+	* Creates a pseudo timer wrapped around a StringMap. Must be closed when finished using.
+	*
+	* @param duration 	Duration for this timer
+	* @param paused		Should this timer start paused
+	* @param loop 		Should this timer loop
+	* @param singleUse	Should this timer clear after it first expires. Ignored if loop is true. Does not delete the handle and can still be re-used.
+	* @param initialDelay	(default: 0.0) Initial delay passed to the timer
+	*
+	* @return - STimer containing this timer's information
+	*/
+	public static STimer CreatePersistentTimer(float duration, bool paused = true, bool loop = false, bool singleUse = false, float initialDelay = 0.0)
+	{
+		STimer timer = new STimer(duration, paused, loop, singleUse, initialDelay);
+		return timer;
+	}
+
+	// Emits the given sound to all players locally
+	public static void EmitSoundToPlayers(const char[] sample)
+	{
+		for (int i = 1; i <= MaxClients; i++)
+		{
+			if (IsClientInGame(i))
+				EmitSoundToClient(i, sample);
+		}
+	}
+
+	/*
+	* Creates a tf_hud_text object and prepares a timer to display it for the given duration
+	*
+	* @param client		Client reference to display this message to
+	* @param message 	Message to display
+	* @param duration 	Duration to hold the message for
+	* @param icon 		Icon to use for the message
+	*/
+	public static void DisplayTFMessage(FClient client, const char[] message, float duration, const char[] icon = "leaderboard_streak")
+	{
+		if (client.Valid())
+		{
+			float endTime = GetGameTime() + duration;
+
+			DataPack data = CreateDataPack();
+			data.WriteCell(client.Get());
+			data.WriteString(message);
+			data.WriteFloat(endTime);
+			data.WriteString(icon);
+
+			data.Reset();
+
+			CreateTimer(0.1, DisplayTFMessageTimer, data, TIMER_REPEAT|TIMER_FLAG_NO_MAPCHANGE);
+		}
+	}
+
+	/*
+	* Displays a tf_hud_text to the given client
+	*
+	* If the message needs to persist for a specific time, use DisplayTFMessage instead.
+	*
+	* @param client 	Client reference to display this text to
+	* @param message 	Message to display
+	* @param icon 		Icon used with this message
+	*
+	*/
+	public static void WriteGameText(FClient client, const char[] message, const char[] icon = "leaderboard_streak")
+	{
+		if (client.Valid())
+		{
+			Handle GlobalText = StartMessageOne("HudNotifyCustom", client.Get());
+
+			SetGlobalTransTarget(client.Get());
+			BfWriteString(GlobalText, message);
+			BfWriteString(GlobalText, icon);
+			BfWriteByte(GlobalText, client.GetTeam());
+			EndMessage();
+		}
+	}
+
+	/*
+	* Creates and spawns an object with the given classname. Use CreateObjectDeferred() if you need to set any properties before spawning.
+	*
+	* @param classname		Classname of the entity to spawn
+	*/
+	public static FObject CreateObject(const char[] classname)
+	{
+		FObject entity;
+
+		entity.Create(classname);
+
+		entity.Spawn();
+		entity.Activate();
+
+		return entity;
+	}
+
+	/*
+	* Creates an object with the given classname, but does not spawn it. Call FGameplayStatics.FinishSpawn() when this object is ready to be spawned.
+	*
+	* @param classname		Classname of the entity to create
+	*/
+	public static FObject CreateObjectDeferred(const char[] classname)
+	{
+		FObject entity;
+
+		entity.Create(classname);
+
+		return entity;
+	}
+
+	/*
+	* Finishes spawning this entity and activates it.
+	*
+	* @param entity		Object reference to spawn
+	* @param spawn		Transform to spawn this object with
+	*/
+	public static void FinishSpawn(FObject entity, FTransform spawn)
+	{
+		entity.Spawn();
+		entity.Activate();
+		
+		entity.Teleport(spawn.position, spawn.rotation, spawn.velocity);
+	}
+}
+
+
 /*
-* Creates a timer and returns its information as an FTimer
+* Creates an FClient struct from a given object reference
 *
-* @param duration 	Duration for this timer
-* @param paused		Should this timer start paused
-* @param loop 		Should this timer loop
-* @param initialDelay	(default: 0.0) Initial delay passed to the timer
+* @param entity		Entity object to check
 *
-* @return - FTimer containing this timer's information
+* @return			FClient info containing the entity reference
 */
 
-stock FTimer ConstructTimer(float duration, bool paused = true, bool loop = false, float initialDelay = 0.0)
+stock FClient CastToClient(FObject entity)
 {
-	FTimer timer;
-	timer.Set(duration, paused, loop, initialDelay);
+	FClient client;
+	client.reference = entity;
 
-	return timer;
+	return client;
+}
+
+// Timer function used with DiplayTFMessage
+Action DisplayTFMessageTimer(Handle timer, DataPack data)
+{
+	data.Reset();
+
+	FClient client;
+	client.Set(data.ReadCell());
+
+	if (client.Valid())
+	{
+		char message[256], icon[128];
+		bool end;
+
+		data.ReadString(message, sizeof message);
+
+		float time = data.ReadFloat();
+		end = time <= GetGameTime();
+
+		//PrintToChat(client.Get(), "Timer on text: %.1f", time - GetGameTime());
+
+		if (end)
+		{
+			delete data;
+			return Plugin_Stop;
+		}
+
+		data.ReadString(icon, sizeof icon);
+
+		FGameplayStatics.WriteGameText(client, message, icon);
+
+		return Plugin_Continue;
+	}
+
+	delete data;
+	return Plugin_Stop;
 }

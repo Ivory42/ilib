@@ -12,7 +12,7 @@
 #endif
 #define _ilib_included
 
-methodmap SMath
+methodmap FMath
 {
 	// Clamps an integer value between min and max
 	public static int ClampInt(int value, int min, int max)
@@ -37,7 +37,7 @@ methodmap SMath
 	*
 	* @return 				Angle between the current and target rotators based on the delta given		
 	*/
-	public static FRotator RInterpTo(FRotator current, FRotator target, float delta, float speed)
+	public static FRotator InterpRotatorTo(FRotator current, FRotator target, float delta, float speed)
 	{
 		// if DeltaTime is 0, do not perform any interpolation (Location was already calculated for that frame)
 		if (delta == 0.0 || current.IsEqual(target))
@@ -57,9 +57,9 @@ methodmap SMath
 		FRotator result;
 		result = current;
 
-		result.pitch += SMath.ClampFloat(deltaRotation.pitch, -deltaSpeed, deltaSpeed);
-		result.yaw += SMath.ClampFloat(deltaRotation.yaw, -deltaSpeed, deltaSpeed);
-		result.roll += SMath.ClampFloat(deltaRotation.roll, -deltaSpeed, deltaSpeed);
+		result.pitch += FMath.ClampFloat(deltaRotation.pitch, -deltaSpeed, deltaSpeed);
+		result.yaw += FMath.ClampFloat(deltaRotation.yaw, -deltaSpeed, deltaSpeed);
+		result.roll += FMath.ClampFloat(deltaRotation.roll, -deltaSpeed, deltaSpeed);
 		return result.GetNormalized();
 	}
 	
@@ -71,7 +71,7 @@ methodmap SMath
 	*
 	* @return FRotator containing the world angles from the origin to the destination
 	*/
-	public static FRotator RCalcAngle(FVector origin, FVector destination)
+	public static FRotator CalcRotator(FVector origin, FVector destination)
 	{
 		FRotator angles;
 		FVector buffer;
@@ -91,7 +91,7 @@ methodmap SMath
 	*
 	* @return 			Interpolated value between the current and target
 	*/
-	public static float FInterpTo(float current, float target, float time)
+	public static float InterpFloatTo(float current, float target, float time)
 	{
 		return (1.0 - time) * current + time * target;
 	}
@@ -105,7 +105,7 @@ methodmap SMath
 	*
 	* @return 			Float value of angle in degrees 
 	*/
-	public static float FGetAngle(FRotator origin, FRotator target)
+	public static float GetAngle(FRotator origin, FRotator target)
 	{
 		FVector aim, ang;
 
@@ -127,7 +127,7 @@ methodmap SMath
 	* @return			FVector offset from the given input vector relative to the given angle
 	*/
 
-	public static FVector VOffsetVector(FVector input, FRotator angle, FVector offset)
+	public static FVector OffsetVector(FVector input, FRotator angle, FVector offset)
 	{
 		FVector result;
 		result = input;
@@ -150,6 +150,131 @@ methodmap SMath
 	}
 }
 
+methodmap FGameplayStatics
+{
+	/*
+	* Creates a pseudo timer wrapped around a StringMap. Must be closed when finished using.
+	*
+	* @param duration 	Duration for this timer
+	* @param paused		Should this timer start paused
+	* @param loop 		Should this timer loop
+	* @param singleUse	Should this timer clear after it first expires. Ignored if loop is true. Does not delete the handle and can still be re-used.
+	* @param initialDelay	(default: 0.0) Initial delay passed to the timer
+	*
+	* @return - STimer containing this timer's information
+	*/
+	public static STimer CreatePersistentTimer(float duration, bool paused = true, bool loop = false, bool singleUse = false, float initialDelay = 0.0)
+	{
+		STimer timer = new STimer(duration, paused, loop, singleUse, initialDelay);
+		return timer;
+	}
+
+	// Emits the given sound to all players locally
+	public static void EmitSoundToPlayers(const char[] sample)
+	{
+		for (int i = 1; i <= MaxClients; i++)
+		{
+			if (IsClientInGame(i))
+				EmitSoundToClient(i, sample);
+		}
+	}
+
+	/*
+	* Creates a tf_hud_text object and prepares a timer to display it for the given duration
+	*
+	* @param client		Client reference to display this message to
+	* @param message 	Message to display
+	* @param duration 	Duration to hold the message for
+	* @param icon 		Icon to use for the message
+	*/
+	public static void DisplayTFMessage(FClient client, const char[] message, float duration, const char[] icon = "leaderboard_streak")
+	{
+		if (client.Valid())
+		{
+			float endTime = GetGameTime() + duration;
+
+			DataPack data = CreateDataPack();
+			data.WriteCell(client.Get());
+			data.WriteString(message);
+			data.WriteFloat(endTime);
+			data.WriteString(icon);
+
+			data.Reset();
+
+			CreateTimer(0.1, DisplayTFMessageTimer, data, TIMER_REPEAT|TIMER_FLAG_NO_MAPCHANGE);
+		}
+	}
+
+	/*
+	* Displays a tf_hud_text to the given client
+	*
+	* If the message needs to persist for a specific time, use DisplayTFMessage instead.
+	*
+	* @param client 	Client reference to display this text to
+	* @param message 	Message to display
+	* @param icon 		Icon used with this message
+	*
+	*/
+	public static void WriteGameText(FClient client, const char[] message, const char[] icon = "leaderboard_streak")
+	{
+		if (client.Valid())
+		{
+			Handle GlobalText = StartMessageOne("HudNotifyCustom", client.Get());
+
+			SetGlobalTransTarget(client.Get());
+			BfWriteString(GlobalText, message);
+			BfWriteString(GlobalText, icon);
+			BfWriteByte(GlobalText, client.GetTeam());
+			EndMessage();
+		}
+	}
+
+	/*
+	* Creates and spawns an object with the given classname. Use CreateObjectDeferred() if you need to set any properties before spawning.
+	*
+	* @param classname		Classname of the entity to spawn
+	*/
+	public static FObject CreateObject(const char[] classname)
+	{
+		FObject entity;
+
+		entity.Create(classname);
+
+		entity.Spawn();
+		entity.Activate();
+
+		return entity;
+	}
+
+	/*
+	* Creates an object with the given classname, but does not spawn it. Call FGameplayStatics.FinishSpawn() when this object is ready to be spawned.
+	*
+	* @param classname		Classname of the entity to create
+	*/
+	public static FObject CreateObjectDeferred(const char[] classname)
+	{
+		FObject entity;
+
+		entity.Create(classname);
+
+		return entity;
+	}
+
+	/*
+	* Finishes spawning this entity and activates it.
+	*
+	* @param entity		Object reference to spawn
+	* @param spawn		Transform to spawn this object with
+	*/
+	public static void FinishSpawn(FObject entity, FTransform spawn)
+	{
+		entity.Spawn();
+		entity.Activate();
+		
+		entity.Teleport(spawn.position, spawn.rotation, spawn.velocity);
+	}
+}
+
 
 /*
 * Creates an FClient struct from a given object reference
@@ -165,44 +290,6 @@ stock FClient CastToClient(FObject entity)
 	client.reference = entity;
 
 	return client;
-}
-
-// Emits the given sound to all players
-stock void EmitSoundToPlayers(const char[] sample)
-{
-	FClient client;
-	for (int i = 1; i <= MaxClients; i++)
-	{
-		client.Set(i);
-		if (client.Valid())
-			EmitSoundToClient(client.Get(), sample);
-	}
-}
-
-/*
-* Creates a tf_hud_text object and prepares a timer to display it for the given duration
-*
-* @param client		Client reference to display this message to
-* @param message 	Message to display
-* @param duration 	Duration to hold the message for
-* @param icon 		Icon to use for the message
-*/
-stock void DisplayTFMessage(FClient client, const char[] message, float duration, const char[] icon = "leaderboard_streak")
-{
-	if (client.Valid())
-	{
-		float endTime = GetGameTime() + duration;
-
-		DataPack data = CreateDataPack();
-		data.WriteCell(client.Get());
-		data.WriteString(message);
-		data.WriteFloat(endTime);
-		data.WriteString(icon);
-
-		data.Reset();
-
-		CreateTimer(0.1, DisplayTFMessageTimer, data, TIMER_REPEAT|TIMER_FLAG_NO_MAPCHANGE);
-	}
 }
 
 // Timer function used with DiplayTFMessage
@@ -233,35 +320,11 @@ Action DisplayTFMessageTimer(Handle timer, DataPack data)
 
 		data.ReadString(icon, sizeof icon);
 
-		WriteGameText(client, message, icon);
+		FGameplayStatics.WriteGameText(client, message, icon);
 
 		return Plugin_Continue;
 	}
 
 	delete data;
 	return Plugin_Stop;
-}
-
-/*
-* Displays a tf_hud_text to the given client
-*
-* If the message needs to persist for a specific time, use DisplayTFMessage instead.
-* The Handle created from this message is closed on its own
-*
-* @param client 	Client reference to display this text to
-*
-* @param message 	Message to display
-*
-* @param icon 		Icon used with this message
-*
-*/
-stock void WriteGameText(FClient client, const char[] message, const char[] icon = "leaderboard_streak")
-{
-	Handle GlobalText = StartMessageOne("HudNotifyCustom", client.Get()); // This handle seems to be invalid after the message disappears?
-
-	SetGlobalTransTarget(client.Get());
-	BfWriteString(GlobalText, message);
-	BfWriteString(GlobalText, icon);
-	BfWriteByte(GlobalText, client.GetTeam());
-	EndMessage();
 }
