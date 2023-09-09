@@ -21,7 +21,7 @@ methodmap ARocket < ABaseProjectile
 	public ARocket()
 	{
 		FObject rocket;
-		rocket = CreateObjectDeferred("tf_projectile_rocket");
+		rocket = FGameplayStatics.CreateObjectDeferred("tf_projectile_rocket");
 
 		return view_as<ARocket>(rocket.ref);
 	}

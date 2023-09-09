@@ -152,7 +152,7 @@ methodmap TempEnt
 * @param pos	World position to spawn the box
 * @param size	Size of mins and maxs of the box
 */
-stock void Tempent_DrawBox(FVector pos, float size)
+stock void Tempent_DrawBox(FVector pos, float size, float duration = 0.1)
 {
 	FVector min, max;
 	max = ConstructVector(size, size, size);
@@ -183,7 +183,7 @@ stock void Tempent_DrawBox(FVector pos, float size)
 	FTempentProperties info;
 	info.model = PrecacheModel("materials/sprites/laser.vmt");
 	info.halo = info.model;
-	info.lifetime = 0.1;
+	info.lifetime = duration;
 	info.width = 1.0;
 	info.color = {255, 255, 255, 255};
 

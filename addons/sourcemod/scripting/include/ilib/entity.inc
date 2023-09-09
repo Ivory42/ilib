@@ -313,8 +313,7 @@ enum struct FObject
 	{
 		if (this.Valid())
 		{
-			this.SetPropRotator(Prop_Send, "m_angRotation", rot);
-			this.SetPropVector(Prop_Data, "m_vecVelocity", vel);
+			TeleportEntity(this.Get(), NULL_VECTOR, rot.ToFloat(), vel.ToFloat());
 		}
 	}
 

@@ -63,7 +63,7 @@ enum struct FParticleSystem
 stock FParticleSystem CreateParticleSystem(const char[] name, const FVector position, const FRotator rotation, bool startActive = false, bool weather = false)
 {
 	FObject reference;
-	reference = CreateObjectDeferred("info_particle_system");
+	reference = FGameplayStatics.CreateObjectDeferred("info_particle_system");
 	
 	FParticleSystem particle;
 	FormatEx(particle.EffectName, sizeof FParticleSystem::EffectName, name);
@@ -76,7 +76,7 @@ stock FParticleSystem CreateParticleSystem(const char[] name, const FVector posi
 	spawn.position = position;
 	spawn.rotation = rotation;
 	
-	FinishSpawn(reference, spawn);
+	FGameplayStatics.FinishSpawn(reference, spawn);
 	
 	particle.Reference = reference;
 	

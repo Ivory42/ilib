@@ -46,7 +46,7 @@ methodmap AProjectileLauncher < AObject
 		else if (!entity.Valid() && !cast)
 		{
 			FObject launcher;
-			launcher = CreateObjectDeferred("tf_point_weapon_mimic");
+			launcher = FGameplayStatics.CreateObjectDeferred("tf_point_weapon_mimic");
 
 			// Setup default values
 			EWeaponType type = WeaponType_Rocket;
