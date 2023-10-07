@@ -516,7 +516,6 @@ stock bool Vector_GetEntityAttachment(FObject entity, int id, FTransform buffer)
 			return true;
 		}
 	}
-
 	return false;
 }
 
@@ -557,42 +556,9 @@ stock bool GetAttachmentTransform(FObject entity, const char[] name, FTransform 
 	{
 		int id = LookupEntityAttachment(entity.Get(), name);
 
-		FTransform transform;
-		if (Vector_GetEntityAttachment(entity, id, transform))
+		if (Vector_GetEntityAttachment(entity, id, buffer))
 			return true;
 	}
 
 	return false;
 }
-
-/*
-* Currently does not work, need to figure out how to properly interpolate to the nearest angle
-* Currently can't get the value to cross from 0 to 359 or vice versa
-
-// Doesn't seem to give expected results
-stock FRotator GetShortestAngle(FRotator origin, FRotator destination)
-{
-	FRotator result;
-
-	result.pitch = (((((destination.pitch - origin.pitch) % 180.0) + 270.0) % 180.0) - 90.0);
-	result.yaw = (((((destination.yaw - origin.yaw) % 360.0) + 540.0) % 360.0) - 180.0);
-	result.roll = (((((destination.roll - origin.roll) % 360.0) + 540.0) % 360.0) - 180.0);
-
-	NormalizeAngles(result);
-
-	return result;
-}
-
-stock void InterpRotator(FRotator origin, FRotator destination, float time, FRotator buffer)
-{
-	FRotator result;
-
-	result.pitch = (1.0 - time) * origin.pitch + time * destination.pitch;
-	result.yaw = (1.0 - time) * origin.yaw + time * destination.yaw;
-	result.roll = (1.0 - time) * origin.roll + time * destination.roll;
-
-	NormalizeAngles(result);
-
-	buffer = result;
-}
-*/
