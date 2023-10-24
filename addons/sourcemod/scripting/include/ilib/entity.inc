@@ -603,7 +603,7 @@ enum struct FObject
 		if (this.Valid())
 		{
 			if (!parent.Valid())
-				LogError("FObject::Attach recieved an invalid object reference for the parent attachment!");
+				LogError("FObject::SetParent recieved an invalid object reference for the parent attachment!");
 
 			SetVariantString("!activator");
 			AcceptEntityInput(this.Get(), "SetParent", parent.Get(), this.Get());

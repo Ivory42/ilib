@@ -42,7 +42,7 @@ enum struct FTimer
 	* @param singleUse		(default: false) Should this timer clear after it first expires. Ignored if loop is true.
 	* @param initialDelay	(default: 0.0) Initial delay passed to the timer
 	*/
-	void Set(float time, bool startPaused = true, bool loop = false, bool singleUse = false, float initialDelay = 0.0)
+	void Set(float time, bool startPaused = false, bool loop = false, bool singleUse = false, float initialDelay = 0.0)
 	{
 		this.Time = time;
 		this.InitialTime = time + initialDelay;
@@ -84,6 +84,9 @@ enum struct FTimer
 	// Returns the timr remaining on this timer in seconds, or 0 if the timer is not active
 	float GetTimeRemaining()
 	{
+		if (this.Paused)
+			return this.PausedValue;
+
 		float result = this.NextTime - GetGameTime();
 		if (result > 0.0)
 			return result;
@@ -94,6 +97,9 @@ enum struct FTimer
 	// Pauses this timer until FTimer::Continue() is called
 	void Pause()
 	{
+		if (this.Paused)
+			return;
+
 		this.Paused = true;
 		this.PausedValue = this.GetTimeRemaining();
 	}
@@ -258,9 +264,8 @@ methodmap STimer < StringMap
 			}
 			else
 				this.NextTimeAt = GetGameTime() + this.PausedTime;
-			
-			this.Paused = false;
 		}
+		this.Paused = false;
 	}
 
 	// Clears and deactivates this timer
@@ -274,6 +279,9 @@ methodmap STimer < StringMap
 	// Returns the time remaining on this timer in seconds, or 0 if the timer is not active
 	public float GetTimeRemaining()
 	{
+		if (this.Paused)
+			return this.PausedTime;
+
 		float result = this.NextTimeAt - GetGameTime();
 		if (result > 0.0)
 			return result;
@@ -284,6 +292,9 @@ methodmap STimer < StringMap
 	// Pauses this timer until STimer::Continue() is called
 	public void Pause()
 	{
+		if (this.Paused)
+			return;
+			
 		this.Paused = true;
 		this.PausedTime = this.GetTimeRemaining();
 	}

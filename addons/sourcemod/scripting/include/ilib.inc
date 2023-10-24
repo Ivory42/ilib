@@ -273,6 +273,11 @@ methodmap FGameplayStatics
 		
 		entity.Teleport(spawn.position, spawn.rotation, spawn.velocity);
 	}
+
+	public static float GetDistanceBetweenObjects(FObject target, FObject destination)
+	{
+		return target.GetPosition().DistanceTo(destination.GetPosition());
+	}
 }
 
 
