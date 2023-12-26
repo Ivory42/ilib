@@ -57,9 +57,9 @@ methodmap FMath
 		FRotator result;
 		result = current;
 
-		result.pitch += FMath.ClampFloat(deltaRotation.pitch, -deltaSpeed, deltaSpeed);
-		result.yaw += FMath.ClampFloat(deltaRotation.yaw, -deltaSpeed, deltaSpeed);
-		result.roll += FMath.ClampFloat(deltaRotation.roll, -deltaSpeed, deltaSpeed);
+		result.Pitch += FMath.ClampFloat(deltaRotation.Pitch, -deltaSpeed, deltaSpeed);
+		result.Yaw += FMath.ClampFloat(deltaRotation.Yaw, -deltaSpeed, deltaSpeed);
+		result.Roll += FMath.ClampFloat(deltaRotation.Roll, -deltaSpeed, deltaSpeed);
 		return result.GetNormalized();
 	}
 	
@@ -134,17 +134,29 @@ methodmap FMath
 
 		FVector interimVec;
 		interimVec = angle.GetForwardVector();
-		interimVec.Scale(offset.x);
+		interimVec.Scale(offset.X);
 		Vector_Add(interimVec, result, result);
 
 		interimVec = angle.GetRightVector();
 		interimVec.Negate();
-		interimVec.Scale(offset.y);
+		interimVec.Scale(offset.Y);
 		Vector_Add(interimVec, result, result);
 
 		interimVec = angle.GetUpVector();
-		interimVec.Scale(offset.z);
+		interimVec.Scale(offset.Z);
 		Vector_Add(interimVec, result, result);
+
+		return result;
+	}
+	
+	public static FVector MirrorVector(FVector input, FVector normal)
+	{
+		FVector result;
+		float dot = Vector_DotProduct(normal, input);
+			
+		normal.Scale(dot * 2.0);
+
+		Vector_Subtract(input, normal, result);
 
 		return result;
 	}
@@ -271,7 +283,7 @@ methodmap FGameplayStatics
 		entity.Spawn();
 		entity.Activate();
 		
-		entity.Teleport(spawn.position, spawn.rotation, spawn.velocity);
+		entity.Teleport(spawn.Position, spawn.Rotation, spawn.Velocity);
 	}
 
 	public static float GetDistanceBetweenObjects(FObject target, FObject destination)
@@ -292,7 +304,7 @@ methodmap FGameplayStatics
 stock FClient CastToClient(FObject entity)
 {
 	FClient client;
-	client.reference = entity;
+	client.Obj = entity;
 
 	return client;
 }

@@ -8,18 +8,18 @@
 /*
  * Used as a base entity for different entity types. If you need to apply custom properties or refer back to the entity, use APersistentObject
  */
-methodmap AObject
+methodmap UObject
 {
-	public AObject(int entity)
+	public UObject(int entity)
 	{
-        return view_as<AObject>(ConstructObject(entity).ref);
+        return view_as<UObject>(ConstructObject(entity).Reference);
     }
 
 	// Returns the object reference
 	public FObject GetObject()
 	{
 		FObject entity;
-		entity.ref = view_as<int>(this);
+		entity.Reference = view_as<int>(this);
 
 		return entity;
 	}
@@ -106,15 +106,15 @@ methodmap AObject
 		return classname;
 	}
 
-	// Wrapper for FinishSpawn() for AObject types
-	public static void SpawnObject(AObject entity, FTransform spawn)
+	// Wrapper for FinishSpawn() for UObject types
+	public static void SpawnObject(UObject entity, FTransform spawn)
 	{
 		FGameplayStatics.FinishSpawn(entity.GetObject(), spawn);
 	}
 }
 
 /*
- * Similar to AObject, but wraps a StringMap and can easily be given custom properties. Unlike AObject, this opens a handle and MUST be closed.
+ * Similar to UObject, but wraps a StringMap and can easily be given custom properties. Unlike UObject, this opens a handle and MUST be closed.
  * When closing this handle, use `FObjectStatics.RemoveObject` instead of delete or CloseHandle to prevent lingering entities.
  * While this can be used to wrap clients as well as any other entities, it is better to use AClient if you need to wrap a client;
  * do NOT call FObjectStatics.RemoveObject` on a client, you can safely use delete for clients.
@@ -220,6 +220,29 @@ methodmap APersistentObject < StringMap
 		return classname;
 	}
 
+	// Returns the position of this entity's origin
+	public FVector GetPosition()
+	{
+		return this.GetObject().GetPosition();
+	}
+
+	// Returns the absolute angles of this entity
+	public FRotator GetAngles()
+	{
+		return this.GetObject().GetAngles();
+	}
+
+	// Returns the current velocity of this entity
+	public FVector GetVelocity()
+	{
+		return this.GetObject().GetVelocity();
+	}
+
+	public void Teleport(FTransform transform)
+	{
+		this.GetObject().Teleport(transform.Position, transform.Rotation, transform.Velocity);
+	}
+
 	/*
 	 * Custom Properties
 	 */
@@ -290,10 +313,79 @@ methodmap APersistentObject < StringMap
 	}
 
 	// Sets a string property on this object
-	public void SetObjectPropString(const char[] key, char[] value) { this.SetString(key, value); }
+	public void SetObjectPropString(const char[] key, const char[] value) { this.SetString(key, value); }
 
 	// Gets a string property from this object
 	public void GetObjectPropString(const char[] key, char[] buffer, int size) { this.GetString(key, buffer, size); }
+
+
+
+
+	/* Sets a float property on the entity
+	* @note This is the same as calling SetEntPropFloat. If you need a custom property use SetObjectPropFloat
+	*/
+	public void SetPropFloat(PropType type, const char[] property, float value, int element = 0) { this.GetObject().SetPropFloat(type, property, value, element); }
+	/* Gets a float property on the entity
+	* @note This is the same as calling GetEntPropFloat. If you need a custom property use GetObjectPropFloat
+	*/
+	public float GetPropFloat(PropType type, const char[] property, int element = 0) { return this.GetObject().GetPropFloat(type, property, element); }
+
+	/* Sets a property on the entity
+	* @note This is the same as calling SetEntProp. If you need a custom property use SetObjectProp
+	*/
+	public void SetProp(PropType type, const char[] property, any value, int element = 0) { this.GetObject().SetProp(type, property, value, element); }
+	/* Gets a property on the entity
+	* @note This is the same as calling GetEntProp. If you need a custom property use GetObjectProp
+	*/
+	public int GetProp(PropType type, const char[] property, int element = 0) { return this.GetObject().GetProp(type, property, element); }
+
+	/* Sets an entity property on the entity
+	* @note This is the same as calling SetEntPropEnt. If you need a custom property use SetObjectPropEnt
+	*/
+	public void SetPropEnt(PropType type, const char[] property, FObject value, int element = 0) { this.GetObject().SetPropEnt(type, property, value, element); }
+	/* Gets an entity property on the entity
+	* @note 	This is the same as calling GetEntPropEnt. If you need a custom property use GetObjectPropEnt
+	*/
+	public FObject GetPropEnt(PropType type, const char[] property, int element = 0) { return this.GetObject().GetPropEnt(type, property, element); }
+
+	/* Sets a vector property on the entity
+	* @note This is the same as calling SetEntPropVector. If you need a custom property use SetObjectPropVector
+	*/
+	public void SetPropVector(PropType type, const char[] property, FVector value, int element = 0) { this.GetObject().SetPropVector(type, property, value, element); }
+	/* Gets a vector property on the entity
+	* @note This is the same as calling GetEntPropVector. If you need a custom property use GetObjectPropVector
+	*/
+	public FVector GetPropVector(PropType type, const char[] property, int element = 0)
+	{ 
+		FVector vector;
+		this.GetObject().GetPropVector(type, property, vector, element);
+
+		return vector;
+	}
+
+	/* Sets a rotator property on the entity
+	* @note This is the same as calling SetEntPropRotator. If you need a custom property use SetObjectPropRotator
+	*/
+	public void SetPropRotator(PropType type, const char[] property, FRotator value, int element = 0) { this.GetObject().SetPropRotator(type, property, value, element); }
+	/* Gets a rotator property on the entity
+	* @note This is the same as calling GetEntPropRotator. If you need a custom property use GetObjectPropRotator
+	*/
+	public FRotator GetPropRotator(PropType type, const char[] property, int element = 0)
+	{ 
+		FRotator rotator;
+		this.GetObject().GetPropRotator(type, property, rotator, element);
+
+		return rotator;
+	}
+
+	/* Sets a string property on the entity
+	* @note This is the same as calling SetEntPropString. If you need a custom property use SetObjectPropString
+	*/
+	public void SetPropString(PropType type, const char[] property, const char[] value, int element = 0) { this.GetObject().SetPropString(type, property, value, element); }
+	/* Gets a string property on the entity
+	* @note This is the same as calling GetEntPropString. If you need a custom property use GetObjectPropString
+	*/
+	public void GetPropString(PropType type, const char[] property, char[] buffer, int size, int element = 0) { this.GetObject().GetPropString(type, property, buffer, size, element); }
 }
 
 /*
@@ -342,6 +434,29 @@ methodmap AClient < APersistentObject
 			return client.GetMaxHealth();
 		}
 	}
+
+	// Team of this client. (Read only)
+	property TFTeam Team
+	{
+		public get() { return view_as<TFTeam>(this.GetClient().GetTeam()); }
+	}
+
+	// Returns the camera position of this client
+	public FVector GetEyePosition()
+	{
+		return this.GetClient().GetEyePosition();
+	}
+
+	// Returns the camera angles of this client
+	public FRotator GetEyeAngles()
+	{
+		return this.GetClient().GetEyeAngles();
+	}
+
+	public bool Alive()
+	{
+		return this.GetClient().Alive();
+	}
 }
 
 public bool operator!=(AClient one, AClient two)
@@ -352,6 +467,16 @@ public bool operator!=(AClient one, AClient two)
 public bool operator==(AClient one, AClient two)
 {
 	return (one.GetClient().Get() == two.GetClient().Get());
+}
+
+public bool operator!=(APersistentObject one, APersistentObject two)
+{
+	return (one.GetObject().Get() != two.GetObject().Get());
+}
+
+public bool operator==(APersistentObject one, APersistentObject two)
+{
+	return (one.GetObject().Get() == two.GetObject().Get());
 }
 
 // Acts as a StringMap but takes FObjects as keys

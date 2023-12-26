@@ -7,14 +7,14 @@
 #endif
 #define _ilib_botcontroller_included
 
-methodmap ABotController < AObject
+methodmap UBotController < UObject
 {
-	public ABotController(FObject entity)
+	public UBotController(FObject entity)
 	{
 		if (entity.Cast("bot_controller"))
-			return view_as<ABotController>(entity.GetReference());
+			return view_as<UBotController>(entity.GetReference());
 
-		return view_as<ABotController>(0);
+		return view_as<UBotController>(0);
 	}
 
 	property TFClassType Class
@@ -105,11 +105,11 @@ methodmap ABotController < AObject
 	}
 
 	// Creates a deferred bot controller object
-	public static ABotController CreateBotController()
+	public static UBotController CreateBotController()
 	{
 		FObject controller;
 		controller = CreateObjectDeferred("bot_controller");
 
-		return view_as<ABotController>(controller.GetReference());
+		return view_as<UBotController>(controller.GetReference());
 	}
 }

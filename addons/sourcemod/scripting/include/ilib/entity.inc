@@ -22,25 +22,30 @@ enum EClassType
 */
 enum struct FObject
 {
-	int ref;
+	int Reference;
 
 	// Sets the given entity index as the reference for this object
 	void Set(int ent)
 	{
-		if (ent > 0)
-			this.ref = EntIndexToEntRef(ent);
+		if (ent >= 0)
+			this.Reference = EntIndexToEntRef(ent);
 	}
 
 	// Converts the reference this object points to into its entity index.
 	int Get()
 	{
-		return EntRefToEntIndex(this.ref);
+		return EntRefToEntIndex(this.Reference);
 	}
 
 	// Returns the entity reference of this object
 	int GetReference()
 	{
-		return this.ref;
+		return this.Reference;
+	}
+
+	void SetReference(int entityRef)
+	{
+		this.Reference = entityRef;
 	}
 
 	// Returns true if the reference this object points to is still valid
@@ -54,8 +59,7 @@ enum struct FObject
 	FObject GetParent()
 	{
 		FObject parent;
-		if (this.Valid())
-			parent.Set(GetEntPropEnt(this.Get(), Prop_Send, "m_hMoveParent"));
+		parent.Set(GetEntPropEnt(this.Reference, Prop_Send, "m_hMoveParent"));
 		
 		return parent;
 	}
@@ -79,15 +83,10 @@ enum struct FObject
 	*/
 	bool Cast(const char[] class)
 	{
-		if (this.Valid())
-		{
-			char classname[256];
-			this.GetClassname(classname, sizeof classname);
+		char classname[256];
+		this.GetClassname(classname, sizeof classname);
 
-			return (StrContains(classname, class) != -1);
-		}
-
-		return false;
+		return (StrContains(classname, class) != -1);
 	}
 
 	/*
@@ -97,8 +96,17 @@ enum struct FObject
 	*/
 	void SetColor(FLinearColor color)
 	{
-		if (this.Valid())
-			SetEntityRenderColor(this.Get(), color.R, color.G, color.B, color.A);
+		SetEntityRenderColor(this.Reference, color.R, color.G, color.B, color.A);
+	}
+
+	// Gets the current render color of this entity
+	FLinearColor GetColor()
+	{
+		FLinearColor color;
+
+		GetEntityRenderColor(this.Reference, color.R, color.G, color.B, color.A);
+
+		return color;
 	}
 
 	/*
@@ -123,8 +131,7 @@ enum struct FObject
 	*/
 	void GetClassname(char[] classname, int size)
 	{
-		if (this.Valid())
-			GetEntityClassname(this.Get(), classname, size);
+		GetEntityClassname(this.Reference, classname, size);
 	}
 
 	/*
@@ -135,8 +142,7 @@ enum struct FObject
 	*/
 	void GetNetClass(char[] netname, int size)
 	{
-		if (this.Valid())
-			GetEntityNetClass(this.Get(), netname, size);
+		GetEntityNetClass(this.Reference, netname, size);
 	}
 	
 	/*
@@ -147,14 +153,12 @@ enum struct FObject
 	*/
 	void GetTargetName(char[] targetname, int size)
 	{
-		if (this.Valid())
-			GetEntPropString(this.Get(), Prop_Data, "m_iName", targetname, size);
+		GetEntPropString(this.Reference, Prop_Data, "m_iName", targetname, size);
 	}
 
 	void SetTargetName(char[] targetname)
 	{
-		if (this.Valid())
-			SetEntPropString(this.Get(), Prop_Data, "m_iName", targetname);
+		SetEntPropString(this.Reference, Prop_Data, "m_iName", targetname);
 	}
 
 	/*
@@ -162,22 +166,19 @@ enum struct FObject
 	*/
 	void Input(const char[] input, int activator = -1, int caller = -1, int id = 0)
 	{
-		if (this.Valid())
-			AcceptEntityInput(this.Get(), input, activator, caller, id);
+		AcceptEntityInput(this.Reference, input, activator, caller, id);
 	}
 
 	// Wrapper for HookSingleEntityOutput()
 	void HookOutput(const char[] output, EntityOutput callback, bool once = false)
 	{
-		if (this.Valid())
-			HookSingleEntityOutput(this.Get(), output, callback, once);
+		HookSingleEntityOutput(this.Reference, output, callback, once);
 	}
 
 	// Wrapper for UnhookSingleEntityOutput()
 	void UnhookOutput(const char[] output, EntityOutput callback)
 	{
-		if (this.Valid())
-			UnhookSingleEntityOutput(this.Get(), output, callback);
+		UnhookSingleEntityOutput(this.Reference, output, callback);
 	}
 
 	/*
@@ -188,8 +189,7 @@ enum struct FObject
 	*/
 	void SetKeyValue(const char[] key, const char[] value)
 	{
-		if (this.Valid())
-			DispatchKeyValue(this.Get(), key, value);
+		DispatchKeyValue(this.Reference, key, value);
 	}
 
 	/*
@@ -200,8 +200,7 @@ enum struct FObject
 	*/
 	void SetKeyValueInt(const char[] key, int value)
 	{
-		if (this.Valid())
-			DispatchKeyValueInt(this.Get(), key, value);
+		DispatchKeyValueInt(this.Reference, key, value);
 	}
 
 	/*
@@ -212,8 +211,7 @@ enum struct FObject
 	*/
 	void SetKeyValueFloat(const char[] key, float value)
 	{
-		if (this.Valid())
-			DispatchKeyValueFloat(this.Get(), key, value);
+		DispatchKeyValueFloat(this.Reference, key, value);
 	}
 
 	/*
@@ -224,8 +222,7 @@ enum struct FObject
 	*/
 	void SetKeyValueVector(const char[] key, FVector value)
 	{
-		if (this.Valid())
-			DispatchKeyValueVector(this.Get(), key, value.ToFloat());
+		DispatchKeyValueVector(this.Reference, key, value.ToFloat());
 	}
 
 	/*
@@ -235,8 +232,7 @@ enum struct FObject
 	*/
 	void SetModel(const char[] model)
 	{
-		if (this.Valid())
-			SetEntityModel(this.Get(), model);
+		SetEntityModel(this.Get(), model);
 	}
 
 	/*
@@ -244,22 +240,19 @@ enum struct FObject
 	*/
 	void Spawn()
 	{
-		if (this.Valid())
-			DispatchSpawn(this.Get());
+		DispatchSpawn(this.Get());
 	}
 
 	// Activates the entity this object is referencing
 	void Activate()
 	{
-		if (this.Valid())
-			ActivateEntity(this.Get());
+		ActivateEntity(this.Get());
 	}
 
 	// Marks this object to be removed
 	void Kill()
 	{
-		if (this.Valid())
-			RemoveEntity(this.Get());
+		RemoveEntity(this.Reference);
 	}
 
 	// Marks this object to be removed on a delay
@@ -281,26 +274,23 @@ enum struct FObject
 	*/
 	void Teleport(FVector pos, FRotator rot, FVector vel)
 	{
-		if (this.Valid())
-		{
-			float position[3], angles[3], velocity[3];
-			if (Vector_IsNull(pos))
-				position = NULL_VECTOR;
-			else
-				position = Vector_MakeFloat(pos);
+		float position[3], angles[3], velocity[3];
 
-			if (Rotator_IsNull(rot))
-				angles = NULL_VECTOR;
-			else
-				angles = Rotator_MakeFloat(rot);
+		position = Vector_MakeFloat(pos);
+		angles = Rotator_MakeFloat(rot);
+		velocity = Vector_MakeFloat(vel);
 
-			if (Vector_IsNull(vel))
-				velocity = NULL_VECTOR;
-			else
-				velocity = Vector_MakeFloat(vel);
+		TeleportEntity(this.Reference, position, angles, velocity);
+	}
 
-			TeleportEntity(this.Get(), position, angles, velocity);
-		}
+	void SetPosition(FVector position)
+	{
+		TeleportEntity(this.Reference, position.ToFloat(), NULL_VECTOR, NULL_VECTOR);
+	}
+
+	void SetAngles(FRotator angles)
+	{
+		TeleportEntity(this.Reference, NULL_VECTOR, angles.ToFloat(), NULL_VECTOR);
 	}
 
 	/*
@@ -311,10 +301,7 @@ enum struct FObject
 	*/
 	void SetVelocityRotation(FRotator rot, FVector vel)
 	{
-		if (this.Valid())
-		{
-			TeleportEntity(this.Get(), NULL_VECTOR, rot.ToFloat(), vel.ToFloat());
-		}
+		TeleportEntity(this.Reference, NULL_VECTOR, rot.ToFloat(), vel.ToFloat());
 	}
 
 	/*
@@ -327,8 +314,7 @@ enum struct FObject
 	*/
 	void SetPropVector(PropType type, const char[] property, FVector vector, int element = 0)
 	{
-		if (this.Valid())
-			Vector_SetProperty(this.Get(), type, property, vector, element);
+		Vector_SetProperty(this.Get(), type, property, vector, element);
 	}
 
 	/*
@@ -341,8 +327,12 @@ enum struct FObject
 	*/
 	void SetPropRotator(PropType type, const char[] property, FRotator rotator, int element = 0)
 	{
-		if (this.Valid())
-			Rotator_SetProperty(this.Get(), type, property, rotator, element);
+		Rotator_SetProperty(this.Get(), type, property, rotator, element);
+	}
+
+	void SetPropString(PropType type, const char[] property, const char[] value, int element = 0)
+	{
+		SetEntPropString(this.Reference, type, property, value, element);
 	}
 
 	/*
@@ -355,8 +345,7 @@ enum struct FObject
 	*/
 	void SetProp(PropType type, const char[] property, any value, int element = 0)
 	{
-		if (this.Valid())
-			SetEntProp(this.Get(), type, property, value, _, element);
+		SetEntProp(this.Reference, type, property, value, _, element);
 	}
 
 	/*
@@ -369,11 +358,7 @@ enum struct FObject
 	*/
 	void SetPropEnt(PropType type, const char[] property, FObject reference, int element = 0)
 	{
-		if (!reference.Valid())
-			LogError("FObject::SetPropEnt recieved an invalid object reference!");
-
-		if (this.Valid())
-			SetEntPropEnt(this.Get(), type, property, reference.Get(), element);
+		SetEntPropEnt(this.Reference, type, property, reference.Get(), element);
 	}
 
 	/*
@@ -386,8 +371,7 @@ enum struct FObject
 	*/
 	void SetPropFloat(PropType type, const char[] property, float value, int element = 0)
 	{
-		if (this.Valid())
-			SetEntPropFloat(this.Get(), type, property, value, element);
+		SetEntPropFloat(this.Reference, type, property, value, element);
 	}
 
 	/*
@@ -401,10 +385,7 @@ enum struct FObject
 	*/
 	int GetProp(PropType type, const char[] property, int element = 0)
 	{
-		if (this.Valid())
-			return GetEntProp(this.Get(), type, property, _, element);
-
-		return 0;
+		return GetEntProp(this.Reference, type, property, _, element);
 	}
 
 	/*
@@ -418,8 +399,7 @@ enum struct FObject
 	FObject GetPropEnt(PropType type, const char[] property, int element = 0)
 	{
 		FObject reference;
-		if (this.Valid())
-			reference.Set(GetEntPropEnt(this.Get(), type, property, element));
+		reference.Set(GetEntPropEnt(this.Reference, type, property, element));
 
 		return reference;
 	}
@@ -435,10 +415,7 @@ enum struct FObject
 	*/
 	float GetPropFloat(PropType type, const char[] property, int element = 0)
 	{
-		if (this.Valid())
-			return GetEntPropFloat(this.Get(), type, property, element);
-
-		return 0.0;
+		return GetEntPropFloat(this.Reference, type, property, element);
 	}
 
 	/*
@@ -452,8 +429,7 @@ enum struct FObject
 	*/
 	void GetPropVector(PropType type, const char[] property, FVector vector, int element = 0)
 	{
-		if (this.Valid())
-			Vector_GetProperty(this.Get(), type, property, vector, element);
+		Vector_GetProperty(this.Get(), type, property, vector, element);
 	}
 
 	/*
@@ -467,8 +443,7 @@ enum struct FObject
 	*/
 	void GetPropRotator(PropType type, const char[] property, FRotator rotator, int element = 0)
 	{
-		if (this.Valid())
-			Rotator_GetProperty(this.Get(), type, property, rotator, element);
+		Rotator_GetProperty(this.Get(), type, property, rotator, element);
 	}
 
 	/*
@@ -483,8 +458,7 @@ enum struct FObject
 	*/
 	void GetPropString(PropType type, const char[] property, char[] buffer, int size, int element = 0)
 	{
-		if (this.Valid())
-			GetEntPropString(this.Get(), type, property, buffer, size, element);
+		GetEntPropString(this.Reference, type, property, buffer, size, element);
 	}
 
 	/*
@@ -497,10 +471,7 @@ enum struct FObject
 	*/
 	bool HasProp(PropType type, const char[] property)
 	{
-		if (this.Valid())
-			return HasEntProp(this.Get(), type, property);
-
-		return false;
+		return HasEntProp(this.Reference, type, property);
 	}
 
 	/*
@@ -511,8 +482,7 @@ enum struct FObject
 	FVector GetPosition()
 	{
 		FVector pos;
-		if (this.Valid())
-			this.GetPropVector(Prop_Data, "m_vecAbsOrigin", pos);
+		this.GetPropVector(Prop_Data, "m_vecAbsOrigin", pos);
 
 		return pos;
 	}
@@ -525,8 +495,7 @@ enum struct FObject
 	FVector GetRelativePosition()
 	{
 		FVector pos;
-		if (this.Valid())
-			this.GetPropVector(Prop_Data, "m_vecOrigin", pos);
+		this.GetPropVector(Prop_Data, "m_vecOrigin", pos);
 
 		return pos;
 	}
@@ -539,8 +508,7 @@ enum struct FObject
 	FRotator GetAngles()
 	{
 		FRotator rot;
-		if (this.Valid())
-			this.GetPropRotator(Prop_Send, "m_angRotation", rot);
+		this.GetPropRotator(Prop_Send, "m_angRotation", rot);
 
 		return rot;
 	}
@@ -553,23 +521,21 @@ enum struct FObject
 	FObject GetOwner()
 	{
 		FObject owner;
-		if (this.Valid())
-		{
-			if (this.HasProp(Prop_Send, "m_hOwnerEntity")) // Not ideal to check all of these at once but it's safer
-				owner = this.GetPropEnt(Prop_Send, "m_hOwnerEntity");
+		if (this.HasProp(Prop_Send, "m_hOwnerEntity")) // Not ideal to check all of these at once but it's safer
+			owner = this.GetPropEnt(Prop_Send, "m_hOwnerEntity");
 
-			// Some projectiles use m_hThrower instead of m_hOwnerEntity
-			if (!owner.Valid() && this.HasProp(Prop_Send, "m_hThrower"))
-				owner = this.GetPropEnt(Prop_Send, "m_hThrower");
+		// Some projectiles use m_hThrower instead of m_hOwnerEntity
+		if (!owner.Valid() && this.HasProp(Prop_Send, "m_hThrower"))
+			owner = this.GetPropEnt(Prop_Send, "m_hThrower");
 			
-			// Buildings!
-			if (!owner.Valid() && this.HasProp(Prop_Send, "m_hBuilder"))
-				owner = this.GetPropEnt(Prop_Send, "m_hBuilder");
+		// Buildings!
+		if (!owner.Valid() && this.HasProp(Prop_Send, "m_hBuilder"))
+			owner = this.GetPropEnt(Prop_Send, "m_hBuilder");
 
-			// If no owner is found, return itself
-			if (!owner.Valid())
-				owner = this;
-		}
+		// If no owner is found, return itself
+		if (!owner.Valid())
+			owner = this;
+		
 		return owner;
 	}
 
@@ -580,17 +546,14 @@ enum struct FObject
 	*/
 	void SetOwner(FObject owner)
 	{
-		if (this.Valid())
-		{
-			if (this.HasProp(Prop_Send, "m_hOwnerEntity"))
-				this.SetPropEnt(Prop_Send, "m_hOwnerEntity", owner);
+		if (this.HasProp(Prop_Send, "m_hOwnerEntity"))
+			this.SetPropEnt(Prop_Send, "m_hOwnerEntity", owner);
 
-			else if (this.HasProp(Prop_Send, "m_hThrower"))
-				this.SetPropEnt(Prop_Send, "m_hThrower", owner);
+		if (this.HasProp(Prop_Send, "m_hThrower"))
+			this.SetPropEnt(Prop_Send, "m_hThrower", owner);
 
-			else if (this.HasProp(Prop_Send, "m_hBuilder"))
-				this.SetPropEnt(Prop_Send, "m_hBuilder", owner);
-		}
+		if (this.HasProp(Prop_Send, "m_hBuilder"))
+			this.SetPropEnt(Prop_Send, "m_hBuilder", owner);
 	}
 
 	/*
@@ -600,23 +563,17 @@ enum struct FObject
 	*/
 	void SetParent(FObject parent)
 	{
-		if (this.Valid())
-		{
-			if (!parent.Valid())
-				LogError("FObject::SetParent recieved an invalid object reference for the parent attachment!");
+		if (!parent.Valid())
+			LogError("FObject::SetParent recieved an invalid object reference for the parent attachment!");
 
-			SetVariantString("!activator");
-			AcceptEntityInput(this.Get(), "SetParent", parent.Get(), this.Get());
-		}
+		SetVariantString("!activator");
+		AcceptEntityInput(this.Get(), "SetParent", parent.Get(), this.Get());
 	}
 
 	// Returns the current health value of this entity
 	int GetHealth()
 	{
-		if (this.Valid())
-			return GetEntProp(this.Get(), Prop_Data, "m_iHealth");
-
-		return 0;
+		return GetEntProp(this.Get(), Prop_Data, "m_iHealth");
 	}
 	
 	/*
@@ -627,8 +584,7 @@ enum struct FObject
 	FVector GetVelocity()
 	{
 		FVector vel;
-		if (this.Valid())
-			Vector_GetProperty(this.Get(), Prop_Data, "m_vecVelocity", vel);
+		Vector_GetProperty(this.Get(), Prop_Data, "m_vecVelocity", vel);
 
 		return vel;
 	}
@@ -644,25 +600,23 @@ enum struct FObject
 	FObject AttachParticle(const char[] name, FVector offset)
 	{
 		FObject particle;
-		if (this.Valid())
-		{
-			particle.Create("info_particle_system");
+		particle.Create("info_particle_system");
 
-			FVector pos;
-			pos = this.GetPosition();
+		FVector pos;
+		pos = this.GetPosition();
 
-			pos.Add(offset);
+		pos.Add(offset);
 
-			particle.Teleport(pos, ConstructRotator(), ConstructVector());
-			particle.SetKeyValue("effect_name", name);
+		particle.Teleport(pos, ConstructRotator(), ConstructVector());
+		particle.SetKeyValue("effect_name", name);
 
-			particle.Spawn();
-			particle.Activate();
-			particle.Input("Start");
+		particle.Spawn();
+		particle.Activate();
+		particle.Input("Start");
 
-			SetVariantString("!activator");
-			particle.SetParent(this);
-		}
+		SetVariantString("!activator");
+		particle.SetParent(this);
+		
 		return particle;
 	}
 
