@@ -53,7 +53,7 @@ methodmap UBaseProjectile < UObject
 			{
 				// This should work for most other projectiles
 				int offset = FindSendPropInfo(this.GetClassname(ClassType_Networked), "m_iDeflected") + 4;
-				GetEntDataFloat(this.Get(), offset);
+				return GetEntDataFloat(this.Get(), offset);
 			}
 		}
 	}
