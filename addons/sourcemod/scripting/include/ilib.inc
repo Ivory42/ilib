@@ -192,6 +192,118 @@ methodmap FGameplayStatics
 	}
 
 	/*
+	* Creates an explosion with the given parameters. The damage from this explosion has no built in falloff/rampup.
+	*
+	* @param owner				Owner of the explosion to credit damage to
+	* @param spawn				Spawn transform for this explosion
+	* @param damage				How much damage this explosion should deal (Rarely ever deals this exact amount, is almost always less)
+	* @param radus				Blast radius of the explosion
+	* @param explodeSound		Sound to use for this explosion
+	* @param explodeParticle	Particle to use for this explosion
+	*
+	*/
+	public static void CreateExplosion(FClient owner, FTransform spawn, float damage, float radius, const char[] explodeSound, const char[] explodeParticle, int soundlevel = 95)
+	{
+		FObject explosion;
+		explosion = FGameplayStatics.CreateObjectDeferred("tf_generic_bomb");
+
+		explosion.SetKeyValueFloat("damage", damage);
+		explosion.SetKeyValueFloat("radius", radius);
+		explosion.SetKeyValue("health", "1");
+
+		explosion.SetOwner(owner.GetObject());
+
+		//explosion.SetKeyValue("sound", explodeSound);
+		EmitAmbientSound(explodeSound, spawn.Position.ToFloat(), GetWorld().Get(), soundlevel);
+
+		explosion.SetKeyValue("explode_particle", explodeParticle);
+
+		FGameplayStatics.FinishSpawn(explosion, spawn);
+
+		SDKHooks_TakeDamage(explosion.Get(), owner.Get(), owner.Get(), 2.0);
+	}
+
+	/* Gets the number of players currently in game with an optional team value
+	*
+	* @param team			Optional team number to check for
+	*
+	* @return	Number of players currently in game
+	*/
+	public static int GetPlayerCount(bool alive = false, TFTeam team = view_as<TFTeam>(-1))
+	{
+		int index = 0;
+		int teamNum = view_as<int>(team);
+		for (int i = 1; i <= MaxClients; i++)
+		{
+			FClient client;
+			if (IsClientInGame(i))
+			{
+				if (alive && !IsPlayerAlive(i))
+				{
+					continue;
+				}
+				
+				client = ConstructClient(i);
+				// Check if we should restrict to a given team or not
+				if (teamNum >= 0)
+				{
+					if (client.GetTeam() == teamNum)
+					{
+						index++;
+					}
+				}
+				else
+				{
+					index++;
+				}
+			}
+		}
+		return index;
+	}
+
+	/* Gets the number of players currently in game and stores them in a player array
+	*
+	* @param players		Buffer to store player indices in
+	* @param team			Optional team number to check for
+	*
+	* @return	Number of players currently in game
+	*/
+	public static int GetPlayerCountEx(int[] players, bool alive = false, TFTeam team = view_as<TFTeam>(-1))
+	{
+		int index = 0;
+		int teamNum = view_as<int>(team);
+		for (int i = 1; i <= MaxClients; i++)
+		{
+			FClient client;
+			if (IsClientInGame(i))
+			{
+				if (alive && !IsPlayerAlive(i))
+				{
+					continue;
+				}
+
+				client = ConstructClient(i);
+
+				// Check if we should restrict to a given team or not
+				if (teamNum >= 0)
+				{
+					if (client.GetTeam() == teamNum)
+					{
+						players[index] = i;
+						index++;
+					}
+				}
+				else
+				{
+					players[index] = i;
+					index++;
+				}
+			}
+		}
+		return index;
+	}
+
+	/*
 	* Creates a tf_hud_text object and prepares a timer to display it for the given duration
 	*
 	* @param client		Client reference to display this message to
@@ -290,6 +402,68 @@ methodmap FGameplayStatics
 	{
 		return target.GetPosition().DistanceTo(destination.GetPosition());
 	}
+
+	/*
+	* Dissolves the client's ragdoll if they are dead and the ragdoll exists
+	*
+	* @param client			Client to dissolve
+	* @param type			Type of dissolve effect to use (https://developer.valvesoftware.com/wiki/Env_entity_dissolver)
+	* @param magnitude		Force to push the ragdoll with when dissolving
+	*
+	*/
+	public static void DissolveClient(FClient client, int type = 0, int magnitude = 200)
+	{
+		if (!client.Alive())
+		{
+			FObject ragdoll;
+			ragdoll = client.GetObject().GetPropEnt(Prop_Send, "m_hRagdoll");
+			if (ragdoll.Valid())
+			{
+				FObject dissolver;
+				dissolver = FGameplayStatics.CreateObject("env_entity_dissolver");
+				
+				dissolver.SetKeyValueInt("dissolvetype", type);
+				dissolver.SetKeyValueInt("magnitude", magnitude);
+				dissolver.SetKeyValue("target", "!activator");
+
+				dissolver.Input("Dissolve", ragdoll.Get());
+				dissolver.Kill();
+			}
+		}
+	}
+}
+
+// Generic filter for traces; only checks if the hit entity is the entity passed through the trace function.
+public bool GenericFilter(int entity, int mask, any data)
+{
+	return entity != data;
+}
+
+// Filter for ignoring players in a trace
+public bool FilterIgnorePlayers(int entity, int mask, any data)
+{
+	if (ConstructClient(entity).Valid())
+	{
+		return false;
+	}
+
+	return true;
+}
+
+// Filter for ignoring players in a trace, also ignores the passed entity index
+public bool FilterIgnorePlayersEx(int entity, int mask, any data)
+{
+	if (entity == data)
+	{
+		return false;
+	}
+
+	if (ConstructClient(entity).Valid())
+	{
+		return false;
+	}
+
+	return true;
 }
 
 
