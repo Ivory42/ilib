@@ -62,6 +62,90 @@ methodmap FMath
 		result.Roll += FMath.ClampFloat(deltaRotation.Roll, -deltaSpeed, deltaSpeed);
 		return result.GetNormalized();
 	}
+
+	/*
+	* Interpolates from a starting vector to the given target vector at a constant rate
+	*
+	* @param current		Starting vector
+	* @param target			Vector to interpolate to
+	* @param delta			Length of distance between starting and target vectors (from 0.0 to 1.0)
+	* @param speed			How fast the interpolation should be (value of 0.0 = no interpolation).
+	*
+	* @return 				Vector between the current and target vectors based on the delta given		
+	*/
+	public static FVector InterpVectorConstant(FVector current, FVector target, float time, float speed)
+	{
+		FVector delta;
+		delta = target;
+		delta.Subtract(current);
+		float deltaSize = delta.Length();
+		float maxStep = speed * time;
+
+		if (deltaSize > maxStep)
+		{
+			if (maxStep > 0.0)
+			{
+				FVector newDelta;
+				newDelta.X = delta.X / deltaSize;
+				newDelta.Y = delta.Y / deltaSize;
+				newDelta.Z = delta.Z / deltaSize;
+
+				FVector result;
+				result.X = current.X + newDelta.X * maxStep;
+				result.Y = current.Y + newDelta.Y * maxStep;
+				result.Z = current.Z + newDelta.Z * maxStep;
+				
+				return result;
+			}
+			else
+			{
+				return current;
+			}
+		}
+
+		return target;
+	}
+
+	// From UE5 FMath::VInterpTo
+	/*
+	* Interpolates from a starting vector to the given target vector in a smooth transition
+	*
+	* @param current		Starting vector
+	* @param target			Vector to interpolate to
+	* @param delta			Length of distance between starting and target vectors (from 0.0 to 1.0)
+	* @param speed			How fast the interpolation should be (value of 0.0 = no interpolation).
+	*
+	* @return 				Vector between the current and target vectors based on the delta given		
+	*/
+	public static FVector InterpVectorTo(FVector current, FVector target, float delta, float speed)
+	{
+		// If no interp speed, jump to target value
+		if( speed <= 0.0 )
+		{
+			return target;
+		}
+
+		// Distance to reach
+		FVector dist;
+		dist = Vector_Subtract(target, current);
+
+		// If distance is too small, just set the desired location
+		if (dist.Length() <= 0.001)
+		{
+			return target;
+		}
+
+		// Delta Move, Clamp so we do not over shoot.
+		FVector moveVector, result;
+		float scalar = FMath.ClampFloat(delta * speed, 0.0, 1.0);
+		moveVector = dist;
+		moveVector.Scale(scalar);
+
+		result = current;
+		result.Add(moveVector);
+
+		return result;
+	}
 	
 	/*
 	* Gets the rotation between two locations in world space
@@ -75,9 +159,9 @@ methodmap FMath
 	{
 		FRotator angles;
 		FVector buffer;
-		Vector_Subtract(destination, origin, buffer);
+		buffer = Vector_Subtract(destination, origin);
 
-		Vector_GetAngles(buffer, angles);
+		angles = Vector_GetAngles(buffer);
 
 		return angles;
 	}
@@ -135,16 +219,16 @@ methodmap FMath
 		FVector interimVec;
 		interimVec = angle.GetForwardVector();
 		interimVec.Scale(offset.X);
-		Vector_Add(interimVec, result, result);
+		result.Add(interimVec);
 
 		interimVec = angle.GetRightVector();
 		interimVec.Negate();
 		interimVec.Scale(offset.Y);
-		Vector_Add(interimVec, result, result);
+		result.Add(interimVec);
 
 		interimVec = angle.GetUpVector();
 		interimVec.Scale(offset.Z);
-		Vector_Add(interimVec, result, result);
+		result.Add(interimVec);
 
 		return result;
 	}
@@ -156,7 +240,7 @@ methodmap FMath
 			
 		normal.Scale(dot * 2.0);
 
-		Vector_Subtract(input, normal, result);
+		result = Vector_Subtract(input, normal);
 
 		return result;
 	}
