@@ -42,7 +42,7 @@ enum struct FVector
 		return GetVectorLength(vector, squared);
 	}
 
-	// Adds this vector with another vector.
+	// Adds this vector with another vector
 	void Add(FVector vec)
 	{
 		this.X += vec.X;
