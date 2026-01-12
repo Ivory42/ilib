@@ -64,7 +64,7 @@ methodmap FMath
 		float deltaSpeed = speed * delta;
 		
 		FRotator deltaRotation;
-		deltaRotation = SubtractRotators(target, current).GetNormalized()
+		deltaRotation = SubtractRotators(target, current).GetNormalized();
 
 		FRotator result;
 		result = current;
