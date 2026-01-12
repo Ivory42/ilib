@@ -197,7 +197,7 @@ stock void Tempent_DrawBox(FVector pos, float size, float duration = 0.1)
 	info.Color = {255, 255, 255, 255};
 
 	FClient world;
-	world = GetWorld();
+	world = GetWorldAsClient();
 
 	FTempEnt.CreateBeam(world, max, pos1, info);
 	FTempEnt.CreateBeam(world, max, pos2, info);

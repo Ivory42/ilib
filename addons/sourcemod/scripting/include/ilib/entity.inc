@@ -501,6 +501,16 @@ enum struct FObject
 	}
 
 	/*
+	* Sets the relative position of this object.
+	*
+	* @param position		Relative Position to set
+	*/
+	void SetRelativePosition(FVector position)
+	{
+		this.SetPropVector(Prop_Data, "m_vecOrigin", position);
+	}
+
+	/*
 	* Stores the angles of this object in an FRotator
 	*
 	* @return - FRotator containing this object's angles
@@ -605,7 +615,9 @@ enum struct FObject
 		FVector pos;
 		pos = this.GetPosition();
 
-		pos.Add(offset);
+		FRotator rotation;
+		rotation = this.GetAngles();
+		pos = FMath.OffsetVector(pos, rotation, offset);
 
 		particle.Teleport(pos, ConstructRotator(), ConstructVector());
 		particle.SetKeyValue("effect_name", name);
@@ -652,4 +664,12 @@ stock FObject ConstructObject(int index)
 	entity.Set(index);
 
 	return entity;
+}
+
+stock FObject GetWorld()
+{
+	FObject world;
+	world.Reference = EntIndexToEntRef(0);
+
+	return world;
 }

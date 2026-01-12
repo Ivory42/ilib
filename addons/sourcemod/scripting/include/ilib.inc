@@ -1,5 +1,4 @@
 #include <sdktools>
-#include <sdkhooks>
 #include "ilib/vector.inc"
 #include "ilib/trace_wrapper.inc"
 #include "ilib/colors.inc"
@@ -25,6 +24,18 @@ methodmap FMath
 	public static float ClampFloat(float value, float min, float max)
 	{
 		return (value < min) ? min : (value < max) ? value : max;
+	}
+
+	// Returns the lesser of two given values. Value1 is prioritized in the case of equal values
+	public static float Min(float value1, float value2)
+	{
+		return (value1 <= value2) ? value1 : value2;
+	}
+
+	// Returns the greater of two given values. Value1 is prioritized in the case of equal values
+	public static float Max(float value1, float value2)
+	{
+		return (value1 >= value2) ? value1 : value2;
 	}
 	
 	// From UE5 FMath::RInterpConstantTo
@@ -244,6 +255,11 @@ methodmap FMath
 		result = Vector_Subtract(input, normal);
 
 		return result;
+	}
+
+	public static float LinearInterp(float origin, float dest, float percent)
+	{
+		return origin + (dest - origin) * percent;
 	}
 }
 
