@@ -560,26 +560,6 @@ methodmap AClient < APersistentObject
 	}
 }
 
-public bool operator!=(AClient one, AClient two)
-{
-	return (one.GetClient().Get() != two.GetClient().Get());
-}
-
-public bool operator==(AClient one, AClient two)
-{
-	return (one.GetClient().Get() == two.GetClient().Get());
-}
-
-public bool operator!=(APersistentObject one, APersistentObject two)
-{
-	return (one.GetObject().Get() != two.GetObject().Get());
-}
-
-public bool operator==(APersistentObject one, APersistentObject two)
-{
-	return (one.GetObject().Get() == two.GetObject().Get());
-}
-
 // Acts as a StringMap but takes FObjects as keys
 methodmap SObjectMap < StringMap
 {

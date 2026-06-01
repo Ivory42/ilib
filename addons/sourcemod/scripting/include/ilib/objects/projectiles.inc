@@ -73,6 +73,10 @@ methodmap UBaseProjectile < UObject
 			{
 				return this.GetObject().GetProp(Prop_Send, "m_iTeamNum");
 			}
+			else
+			{
+				return 0;
+			}
 		}
 	}
 
