@@ -1,4 +1,5 @@
 #include <sdktools>
+#include <sdkhooks>
 #include "ilib/vector.inc"
 #include "ilib/trace_wrapper.inc"
 #include "ilib/colors.inc"
