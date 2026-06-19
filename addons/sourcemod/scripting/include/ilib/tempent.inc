@@ -161,12 +161,8 @@ methodmap FTempEnt
 * @param pos	World position to spawn the box
 * @param size	Size of mins and maxs of the box
 */
-stock void Tempent_DrawBox(FVector pos, float size, float duration = 0.1)
+stock void Tempent_DrawBox(FVector pos, FVector min, FVector max, float duration = 0.1)
 {
-	FVector min, max;
-	max = ConstructVector(size, size, size);
-	min = ConstructVector(size * -1.0, size * -1.0, size * -1.0);
-
 	max.Add(pos);
 	min.Add(pos);
 
