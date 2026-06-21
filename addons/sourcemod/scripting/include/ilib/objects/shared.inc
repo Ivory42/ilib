@@ -123,7 +123,7 @@ methodmap APersistentObject < StringMap
 {
 	public APersistentObject(FObject entity)
 	{
-		StringMap properties
+		StringMap properties = null;
 		if (entity.Valid())
 		{
 			properties = new StringMap();
